@@ -1,7 +1,6 @@
 ### Composer ###
 composer.phar
 vendor/
-composer.lock
 
 ### PhpStorm ###
 *.iml

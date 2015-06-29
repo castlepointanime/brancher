@@ -57,8 +57,8 @@ class BuildCommand extends BaseCommand
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var \Symfony\Component\Filesystem\Filesystem $fs */
-        $fs = $this->container->get('filesystem');
+        /** @var \Symfony\Component\Filesystem\Filesystem $filesystem */
+        $filesystem = $this->container->get('filesystem');
         /** @var \ParsedownExtra $mdParser */
         $mdParser = $this->container->get('parsedown');
         /** @var \Mni\FrontYAML\Parser $parser */
@@ -114,7 +114,7 @@ class BuildCommand extends BaseCommand
 
             // Output to final file
             $outputFilename = $input->getArgument('output') . DIRECTORY_SEPARATOR . $fileInfo->getRelativePathname();
-            $fs->dumpFile($outputFilename, $rendered);
+            $filesystem->dumpFile($outputFilename, $rendered);
         }
     }
 }
