@@ -22,7 +22,7 @@ namespace CastlePointAnime\Brancher\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\Output;
+use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
 class BuildCommand extends BaseCommand
@@ -55,7 +55,7 @@ class BuildCommand extends BaseCommand
             );
     }
 
-    protected function execute(InputInterface $input, Output $output)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var \Symfony\Component\Filesystem\Filesystem $fs */
         $fs = $this->container->get('filesystem');
