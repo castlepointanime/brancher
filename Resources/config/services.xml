@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    This file is part of brancher, a static site generation tool
+    Copyright (C) 2015  Tyler Romeo <tylerromeo@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+			       http://symfony.com/schema/dic/services/services-1.0.xsd">
+    <parameters>
+        <parameter key="debug">false</parameter>
+        <parameter key="castlepointanime.brancher.twig.extensions" type="collection"/>
+        <parameter key="castlepointanime.brancher.site" type="collection"/>
+    </parameters>
+    <services>
+        <service id="brancher.twig_extension" class="CastlePointAnime\Brancher\Twig\BrancherExtension">
+            <argument>%castlepointanime.brancher.site%</argument>
+        </service>
+        <service id="twig" class="Twig_Environment">
+            <argument>null</argument>
+            <argument type="collection">
+                <argument key="debug">%debug%</argument>
+                <argument key="cache">false</argument>
+                <argument key="strict_variables">true</argument>
+            </argument>
+            <call method="setExtensions">
+                <argument>%castlepointanime.brancher.twig.extensions%</argument>
+            </call>
+            <call method="addExtension">
+                <argument type="service" id="brancher.twig_extension"/>
+            </call>
+        </service>
+        <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
+
+        <service id="parsedown" class="ParsedownExtra"/>
+        <service id="frontyaml.bridge" class="Mni\FrontYAML\Bridge\Parsedown\ParsedownParser" public="false">
+            <argument type="service" id="parsedown"/>
+        </service>
+        <service id="frontyaml" class="Mni\FrontYAML\Parser">
+            <argument>null</argument>
+            <argument type="service" id="frontyaml.bridge"/>
+        </service>
+    </services>
+</container>
