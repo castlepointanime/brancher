@@ -25,6 +25,16 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * Command that builds a site from one directory into another
+ *
+ * A command where the user provides an input and output directory, and
+ * every file with front YAML in the input directory is rendered through
+ * Twig, optionally additionally rendered (depending on the file type),
+ * and output to the same filename in the output directory.
+ *
+ * @package CastlePointAnime\Brancher\Command
+ */
 class BuildCommand extends BaseCommand
 {
     protected function configure()
@@ -55,6 +65,14 @@ class BuildCommand extends BaseCommand
             );
     }
 
+    /**
+     * Build the site based on user input, and output status info
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
+     * @return void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var \Symfony\Component\Filesystem\Filesystem $filesystem */

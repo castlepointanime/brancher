@@ -21,13 +21,29 @@ namespace CastlePointAnime\Brancher\Console;
 
 use Symfony\Component\Console\Application as BaseApplication;
 
+/**
+ * Console application class for brancher
+ *
+ * A custom Application class, made only so that the help message
+ * can be appended with some license information
+ *
+ * @package CastlePointAnime\Brancher\Console
+ */
 class Application extends BaseApplication
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         parent::__construct('brancher', '0.1');
     }
 
+    /**
+     * Get the header for the help message
+     *
+     * @return string
+     */
     public function getHelp()
     {
         return $this->getLongVersion()."\n"."\n"."Copyright (C) 2015  Tyler Romeo <tylerromeo@gmail.com>\n"

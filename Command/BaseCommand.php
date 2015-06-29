@@ -32,10 +32,20 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
+/**
+ * Base command providing common functionality for brancher commands
+ *
+ * @package CastlePointAnime\Brancher\Command
+ */
 abstract class BaseCommand extends Command
 {
     use ContainerAwareTrait;
 
+    /**
+     * Constructor
+     *
+     * Adds common config option for specifying a configuration file
+     */
     public function __construct()
     {
         parent::__construct();
@@ -49,6 +59,14 @@ abstract class BaseCommand extends Command
         );
     }
 
+    /**
+     * Initialize the service container (and extensions), and load the config file
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
+     * @throws \Exception if user-provided configuration file causes an error
+     */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $containerBuilder = new ContainerBuilder();

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <!--
     This file is part of brancher, a static site generation tool
     Copyright (C) 2015  Tyler Romeo <tylerromeo@gmail.com>
@@ -16,22 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<!--suppress XmlUnboundNsPrefix -->
-<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.5/phpunit.xsd"
-         colors="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         beStrictAboutOutputDuringTests="true"
-         beStrictAboutTestsThatDoNotTestAnything="true"
-         forceCoversAnnotation="true"
-         bootstrap="./vendor/autoload.php">
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:brancher="http://castlepointanime.com/schema/dic/brancher"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+                   http://symfony.com/schema/dic/services/services-1.0.xsd">
 
-    <testsuites>
-        <testsuite name="brancher tests">
-            <directory>./Tests/</directory>
-        </testsuite>
-    </testsuites>
+    <brancher:config>
+        <brancher:site>
+            <brancher:name>Title Text</brancher:name>
+        </brancher:site>
+    </brancher:config>
 
-</phpunit>
+</container>

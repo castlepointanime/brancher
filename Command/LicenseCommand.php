@@ -23,6 +23,14 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+/**
+ * Command that displays the GPL 3.0 license to users
+ *
+ * For easy explanation, the program displays brief license information in the
+ * help output, and directs the user to use this command to get the full license.
+ *
+ * @package CastlePointAnime\Brancher\Command
+ */
 class LicenseCommand extends Command
 {
     protected function configure()
@@ -32,6 +40,14 @@ class LicenseCommand extends Command
             ->setDescription('Show license text for this program');
     }
 
+    /**
+     * Output the GPL 3.0 license from the text file
+     *
+     * @param \Symfony\Component\Console\Input\InputInterface $input
+     * @param \Symfony\Component\Console\Output\OutputInterface $output
+     *
+     * @return void
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $output->write(file_get_contents(__DIR__ . '/../LICENSE.txt'));

@@ -22,6 +22,7 @@
   </component>
   <component name="ProjectResources">
     <resource url="http://schema.phpunit.de/4.5/phpunit.xsd" location="$PROJECT_DIR$/vendor/phpunit/phpunit/phpunit.xsd" />
+    <resource url="http://castlepointanime.com/schema/dic/brancher" location="$PROJECT_DIR$/Resources/schema/brancher-0.1.xsd" />
   </component>
   <component name="ProjectRootManager" version="2" />
   <component name="PropertiesComponent">
