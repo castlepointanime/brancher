@@ -28,13 +28,13 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 {
     public static function provideSites()
     {
-        $it = new \FilesystemIterator(
+        $iterator = new \FilesystemIterator(
             __DIR__.'/../Resources',
             \FilesystemIterator::CURRENT_AS_PATHNAME | \FilesystemIterator::SKIP_DOTS
         );
 
         $sites = [];
-        foreach ($it as $pathname) {
+        foreach ($iterator as $pathname) {
             $sites[] = [$pathname];
         }
 
