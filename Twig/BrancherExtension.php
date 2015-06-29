@@ -19,20 +19,47 @@
 
 namespace CastlePointAnime\Brancher\Twig;
 
+/**
+ * Twig extension for brancher-specific functionality
+ *
+ * Extension for Twig templates that provides access to functionality
+ * exposed by this application, e.g., site information parsed from a
+ * configuration file
+ *
+ * @package CastlePointAnime\Brancher\Twig
+ */
 class BrancherExtension extends \Twig_Extension
 {
+    /**
+     * @var array Generic information about the site
+     */
     private $site;
 
+    /**
+     * Constructor
+     *
+     * @param array $site Generic information about the site
+     */
     public function __construct(array $site)
     {
         $this->site = $site;
     }
 
+    /**
+     * Get name of Twig extension
+     *
+     * @return string
+     */
     public function getName()
     {
         return 'brancher';
     }
 
+    /**
+     * Get global variables to be exposed to scripts
+     *
+     * @return array Mapping of global variable name to value
+     */
     public function getGlobals()
     {
         return [

@@ -24,8 +24,19 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
+/**
+ * Container extension for loading brancher services
+ *
+ * @package CastlePointAnime\Brancher\DependencyInjection
+ */
 class BrancherExtension extends Extension
 {
+    /**
+     * Load common services for brancher commands and process configuration
+     *
+     * @param array $configs
+     * @param \Symfony\Component\DependencyInjection\ContainerBuilder $container
+     */
     public function load(array $configs, ContainerBuilder $container)
     {
         $config = $this->processConfiguration(
@@ -47,11 +58,21 @@ class BrancherExtension extends Extension
         }
     }
 
+    /**
+     * Get directory where XSD file is located
+     *
+     * @return string
+     */
     public function getXsdValidationBasePath()
     {
         return __DIR__.'/../Resources/config/schema/';
     }
 
+    /**
+     * Get XML namespace for configuration file
+     *
+     * @return string
+     */
     public function getNamespace()
     {
         return 'http://castlepointanime.com/schema/dic/brancher';

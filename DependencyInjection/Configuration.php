@@ -22,8 +22,16 @@ namespace CastlePointAnime\Brancher\DependencyInjection;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
+/**
+ * Configuration for the brancher config file
+ *
+ * @package CastlePointAnime\Brancher\DependencyInjection
+ */
 class Configuration implements ConfigurationInterface
 {
+    /**
+     * @return \Symfony\Component\Config\Definition\Builder\TreeBuilder
+     */
     public function getConfigTreeBuilder()
     {
         $builder = new TreeBuilder();
@@ -39,6 +47,7 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
                 ->arrayNode('twig')
+                    ->fixXmlConfig('extension')
                     ->children()
                         ->arrayNode('extensions')
                             ->prototype('scalar')

@@ -24,8 +24,18 @@ use CastlePointAnime\Brancher\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
 use Symfony\Component\Finder\Finder;
 
+/**
+ * Test the accuracy of the build command, which builds a site once
+ *
+ * @package CastlePointAnime\Brancher\Tests\Command
+ */
 class BuildCommandTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * Get a list of test websites from the Resources directory
+     *
+     * @return array
+     */
     public static function provideSites()
     {
         $iterator = new \FilesystemIterator(
@@ -35,7 +45,17 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $sites = [];
         foreach ($iterator as $pathname) {
-            $sites[] = [$pathname];
+            // Try and find config file if it exists
+            $finder = new Finder();
+            $finder->in($pathname)->files()->name('/_config\.(xml|yml|php)/');
+
+            $config = null;
+            /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
+            foreach ($finder as $fileInfo) {
+                $config = $fileInfo->getPathname();
+            }
+
+            $sites[] = [$pathname, $config];
         }
 
         return $sites;
@@ -44,8 +64,9 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider provideSites
      * @param string $root Root directory of site
+     * @param string|null $config Path to configuration file
      */
-    public function testSites($root)
+    public function testSites($root, $config = null)
     {
         $application = new Application();
         $application->add(new BuildCommand());
@@ -56,10 +77,11 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $outputDir = sys_get_temp_dir();
         $commandTester->execute(
-            [
+            array_filter([
+                "--config" => $config,
                 'root' => $root,
                 'output' => $outputDir,
-            ]
+            ])
         );
 
         $finder = new Finder();
