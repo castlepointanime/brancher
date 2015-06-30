@@ -22,6 +22,7 @@
     <xs:complexType name="brancherConfig">
         <xs:all minOccurs="0">
             <xs:element name="site" type="siteInfo" />
+            <xs:element name="build" type="buildConfig" />
             <xs:element name="twig" type="twigConfig" />
         </xs:all>
     </xs:complexType>
@@ -30,6 +31,11 @@
             <xs:element name="name" type="xs:normalizedString" />
             <xs:element name="description" type="xs:normalizedString" />
         </xs:all>
+    </xs:complexType>
+    <xs:complexType name="buildConfig">
+        <xs:sequence>
+            <xs:element name="exclude" type="xs:string" maxOccurs="unbounded" />
+        </xs:sequence>
     </xs:complexType>
     <xs:complexType name="twigConfig">
         <xs:sequence>

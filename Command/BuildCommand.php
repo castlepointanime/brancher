@@ -85,21 +85,31 @@ class BuildCommand extends BaseCommand
         $twig = $this->container->get('twig');
 
         // Find all files in root directory
+        $root = $input->getArgument('root');
         $renderFinder = new Finder();
         $renderFinder
             ->files()
-            ->in($input->getArgument('root'))
+            ->in($root)
             ->exclude($input->getOption('template-dir'))
             ->exclude($input->getOption('exclude'))
-            ->exclude($input->getArgument('output'))
-            ->contains('/^---\n.*\n---\n/s');
+            ->exclude($input->getArgument('output'));
+        array_map(
+            [$renderFinder, 'notPath'],
+            $this->container->getParameter('castlepointanime.brancher.build.excludes')
+        );
 
         // First extract the files, parse the front YAML, and store in an array
-        $templates = [ ];
+        // Keep aside files without front YAML
+        $templates = [];
+        $raws = [];
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
             $document = $parser->parse($fileInfo->getContents(), false);
-            $templates[ $fileInfo->getRelativePathname() ] = $document->getContent();
+            if ($document->getYAML()) {
+                $templates[$fileInfo->getRelativePathname()] = $document->getContent();
+            } else {
+                $raws[] = $fileInfo->getRelativePathname();
+            }
         }
 
         // Put all files into the Twig loader
@@ -117,10 +127,10 @@ class BuildCommand extends BaseCommand
             )
         );
 
+        $outputDir = $input->getArgument('output');
         // Render every file and dump to output
-        /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
-        foreach ($renderFinder as $fileInfo) {
-            $rendered = $twig->render($fileInfo->getRelativePathname());
+        foreach (array_keys($templates) as $relativePath) {
+            $rendered = $twig->render($relativePath);
 
             // Additional rendering for certain file types
             switch ($fileInfo->getExtension()) {
@@ -131,8 +141,12 @@ class BuildCommand extends BaseCommand
             }
 
             // Output to final file
-            $outputFilename = $input->getArgument('output') . DIRECTORY_SEPARATOR . $fileInfo->getRelativePathname();
+            $outputFilename = "$outputDir/$relativePath";
             $filesystem->dumpFile($outputFilename, $rendered);
+        }
+        // Copy over static files verbatim
+        foreach ($raws as $relativePath) {
+            $filesystem->copy("$root/$relativePath", "$outputDir/$relativePath");
         }
     }
 }

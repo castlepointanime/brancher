@@ -60,6 +60,14 @@ abstract class BaseCommand extends Command
     }
 
     /**
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
      * Initialize the service container (and extensions), and load the config file
      *
      * @param \Symfony\Component\Console\Input\InputInterface $input
