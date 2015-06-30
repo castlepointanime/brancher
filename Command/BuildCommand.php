@@ -91,8 +91,7 @@ class BuildCommand extends BaseCommand
             ->in($input->getArgument('root'))
             ->exclude($input->getOption('template-dir'))
             ->exclude($input->getOption('exclude'))
-            ->exclude($input->getArgument('output'))
-            ->contains('/^---\n.*\n---\n/s');
+            ->exclude($input->getArgument('output'));
         array_map(
             [$renderFinder, 'notPath'],
             $this->container->getParameter('castlepointanime.brancher.build.excludes')
@@ -103,7 +102,9 @@ class BuildCommand extends BaseCommand
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
             $document = $parser->parse($fileInfo->getContents(), false);
-            $templates[ $fileInfo->getRelativePathname() ] = $document->getContent();
+            if ($document->getYAML()) {
+                $templates[ $fileInfo->getRelativePathname() ] = $document->getContent();
+            }
         }
 
         // Put all files into the Twig loader
@@ -124,6 +125,14 @@ class BuildCommand extends BaseCommand
         // Render every file and dump to output
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
+            $outputFilename = $input->getArgument('output') . DIRECTORY_SEPARATOR . $fileInfo->getRelativePathname();
+
+            // If file does not have front YAML, dump it raw and continue
+            if (!isset($templates[$fileInfo->getRelativePathname()])) {
+                $filesystem->dumpFile($outputFilename, $fileInfo->getContents());
+                continue;
+            }
+
             $rendered = $twig->render($fileInfo->getRelativePathname());
 
             // Additional rendering for certain file types
@@ -135,7 +144,6 @@ class BuildCommand extends BaseCommand
             }
 
             // Output to final file
-            $outputFilename = $input->getArgument('output') . DIRECTORY_SEPARATOR . $fileInfo->getRelativePathname();
             $filesystem->dumpFile($outputFilename, $rendered);
         }
     }

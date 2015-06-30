@@ -22,7 +22,6 @@ namespace CastlePointAnime\Brancher\Tests\Command;
 use CastlePointAnime\Brancher\Command\BuildCommand;
 use CastlePointAnime\Brancher\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -69,7 +68,6 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testSites($root, $config = null)
     {
-        $filesystem = new Filesystem();
         $application = new Application();
         $application->add(new BuildCommand());
 
