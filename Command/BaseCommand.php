@@ -62,7 +62,8 @@ abstract class BaseCommand extends Command
     /**
      * @return \Symfony\Component\DependencyInjection\ContainerInterface
      */
-    public function getContainer() {
+    public function getContainer()
+    {
         return $this->container;
     }
 
