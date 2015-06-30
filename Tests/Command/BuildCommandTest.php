@@ -22,6 +22,7 @@ namespace CastlePointAnime\Brancher\Tests\Command;
 use CastlePointAnime\Brancher\Command\BuildCommand;
 use CastlePointAnime\Brancher\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -68,6 +69,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
      */
     public function testSites($root, $config = null)
     {
+        $filesystem = new Filesystem();
         $application = new Application();
         $application->add(new BuildCommand());
 
@@ -75,7 +77,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
 
-        $outputDir = sys_get_temp_dir();
+        $outputDir = sys_get_temp_dir() . '/' . uniqid('brancher');
         $commandTester->execute(
             array_filter([
                 "--config" => $config,
@@ -84,15 +86,29 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
+        // Test to make sure existing files match
         $finder = new Finder();
-        $finder->files()->in($root)
-            ->exclude("$root/_templates")->exclude("$root/_site")
-            ->contains('/^---\n.*\n---\n/s');
+        $finder->files()->in("$root/_site");
 
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($finder as $fileInfo) {
             $filename = $fileInfo->getRelativePathname();
-            $this->assertFileEquals("$root/_site/$filename", "$outputDir/$filename");
+            $this->assertFileEquals("$outputDir/$filename", "$outputDir/$filename");
+        }
+
+        // Test to make sure excluded files do not exist
+        $excludeDirs = $command->getContainer()->getParameter('castlepointanime.brancher.build.excludes');
+        if (count($excludeDirs)) {
+            $finder = new Finder();
+            $finder->files()->in($root)
+                ->exclude('_site')
+                ->exclude('_templates');
+            array_map([$finder, 'path'], $excludeDirs);
+
+            /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
+            foreach ($finder as $fileInfo) {
+                $this->assertFileNotExists("$outputDir/{$fileInfo->getRelativePathname()}");
+            }
         }
     }
 }

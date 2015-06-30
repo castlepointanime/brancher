@@ -93,6 +93,10 @@ class BuildCommand extends BaseCommand
             ->exclude($input->getOption('exclude'))
             ->exclude($input->getArgument('output'))
             ->contains('/^---\n.*\n---\n/s');
+        array_map(
+            [$renderFinder, 'notPath'],
+            $this->container->getParameter('castlepointanime.brancher.build.excludes')
+        );
 
         // First extract the files, parse the front YAML, and store in an array
         $templates = [ ];
