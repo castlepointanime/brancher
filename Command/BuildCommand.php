@@ -46,7 +46,8 @@ class BuildCommand extends BaseCommand
                 'template-dir',
                 't',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Directories to look for templates in'
+                'Directories to look for templates in',
+                ['_templates']
             )->addOption(
                 'exclude',
                 'e',
@@ -79,17 +80,27 @@ class BuildCommand extends BaseCommand
         $filesystem = $this->container->get('filesystem');
         /** @var \ParsedownExtra $mdParser */
         $mdParser = $this->container->get('parsedown');
-        /** @var \Mni\FrontYAML\Parser $parser */
-        $parser = $this->container->get('frontyaml');
         /** @var \Twig_Environment $twig */
         $twig = $this->container->get('twig');
 
-        // Find all files in root directory
+        // Put all files into the Twig loader
         $root = $input->getArgument('root');
+        chdir($root);
+        $twig->setLoader(
+            new \Twig_Loader_Filesystem(
+                array_filter(
+                    array_merge([$root], array_map('realpath', $input->getOption('template-dir'))),
+                    'is_executable'
+                )
+            )
+        );
+
+        // Find all files in root directory
         $renderFinder = new Finder();
         $renderFinder
             ->files()
             ->in($root)
+            ->exclude($filesystem->makePathRelative($input->getOption('config'), $root))
             ->exclude($input->getOption('template-dir'))
             ->exclude($input->getOption('exclude'))
             ->exclude($input->getArgument('output'));
@@ -98,39 +109,11 @@ class BuildCommand extends BaseCommand
             $this->container->getParameter('castlepointanime.brancher.build.excludes')
         );
 
-        // First extract the files, parse the front YAML, and store in an array
-        // Keep aside files without front YAML
-        $templates = [];
-        $raws = [];
-        /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
-        foreach ($renderFinder as $fileInfo) {
-            $document = $parser->parse($fileInfo->getContents(), false);
-            if ($document->getYAML()) {
-                $templates[$fileInfo->getRelativePathname()] = $document->getContent();
-            } else {
-                $raws[] = $fileInfo->getRelativePathname();
-            }
-        }
-
-        // Put all files into the Twig loader
-        $twig->setLoader(
-            new \Twig_Loader_Chain(
-                [
-                    new \Twig_Loader_Filesystem(
-                        array_filter(
-                            $input->getOption('template-dir') ?: [$input->getArgument('root') . '/_templates'],
-                            'is_executable'
-                        )
-                    ),
-                    new \Twig_Loader_Array($templates),
-                ]
-            )
-        );
-
         $outputDir = $input->getArgument('output');
         // Render every file and dump to output
-        foreach (array_keys($templates) as $relativePath) {
-            $rendered = $twig->render($relativePath);
+        /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
+        foreach ($renderFinder as $fileInfo) {
+            $rendered = $twig->render($fileInfo->getRelativePathname());
 
             // Additional rendering for certain file types
             switch ($fileInfo->getExtension()) {
@@ -141,12 +124,8 @@ class BuildCommand extends BaseCommand
             }
 
             // Output to final file
-            $outputFilename = "$outputDir/$relativePath";
+            $outputFilename = "$outputDir/{$fileInfo->getRelativePathname()}";
             $filesystem->dumpFile($outputFilename, $rendered);
-        }
-        // Copy over static files verbatim
-        foreach ($raws as $relativePath) {
-            $filesystem->copy("$root/$relativePath", "$outputDir/$relativePath");
         }
     }
 }

@@ -78,7 +78,8 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         $outputDir = sys_get_temp_dir() . '/' . uniqid('brancher');
         $commandTester->execute(
             array_filter([
-                "--config" => $config,
+                '--config' => $config,
+                '--exclude' => '_site',
                 'root' => $root,
                 'output' => $outputDir,
             ])
@@ -90,8 +91,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($finder as $fileInfo) {
-            $filename = $fileInfo->getRelativePathname();
-            $this->assertFileEquals("$outputDir/$filename", "$outputDir/$filename");
+            $this->assertFileEquals($fileInfo->getPathname(), "$outputDir/{$fileInfo->getRelativePathname()}");
         }
 
         // Test to make sure excluded files do not exist

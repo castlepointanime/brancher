@@ -47,12 +47,5 @@
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 
         <service id="parsedown" class="ParsedownExtra"/>
-        <service id="frontyaml.bridge" class="Mni\FrontYAML\Bridge\Parsedown\ParsedownParser" public="false">
-            <argument type="service" id="parsedown"/>
-        </service>
-        <service id="frontyaml" class="Mni\FrontYAML\Parser">
-            <argument>null</argument>
-            <argument type="service" id="frontyaml.bridge"/>
-        </service>
     </services>
 </container>
