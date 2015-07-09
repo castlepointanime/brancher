@@ -23,15 +23,27 @@
     <parameters>
         <parameter key="debug">false</parameter>
         <parameter key="castlepointanime.brancher.twig.extensions" type="collection"/>
+        <parameter key="castlepointanime.brancher.build.root"/>
+        <parameter key="castlepointanime.brancher.build.output"/>
         <parameter key="castlepointanime.brancher.build.excludes" type="collection"/>
+        <parameter key="castlepointanime.brancher.build.data" type="collection"/>
+        <parameter key="castlepointanime.brancher.build.templates" type="collection"/>
         <parameter key="castlepointanime.brancher.site" type="collection"/>
     </parameters>
     <services>
-        <service id="brancher.twig_extension" class="CastlePointAnime\Brancher\Twig\BrancherExtension">
+        <service id="brancher.twig_extension" class="CastlePointAnime\Brancher\Twig\BrancherExtension" public="false">
+            <argument type="service" id="filesystem" />
             <argument>%castlepointanime.brancher.site%</argument>
+            <argument>%castlepointanime.brancher.build.data%</argument>
+        </service>
+        <service id="brancher.twig_loader" class="Twig_Loader_Filesystem" public="false">
+            <argument>%castlepointanime.brancher.build.templates%</argument>
+            <call method="addPath">
+                <argument>%castlepointanime.brancher.build.root%</argument>
+            </call>
         </service>
         <service id="twig" class="Twig_Environment">
-            <argument>null</argument>
+            <argument type="service" id="brancher.twig_loader" />
             <argument type="collection">
                 <argument key="debug">%debug%</argument>
                 <argument key="cache">false</argument>
@@ -47,12 +59,5 @@
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 
         <service id="parsedown" class="ParsedownExtra"/>
-        <service id="frontyaml.bridge" class="Mni\FrontYAML\Bridge\Parsedown\ParsedownParser" public="false">
-            <argument type="service" id="parsedown"/>
-        </service>
-        <service id="frontyaml" class="Mni\FrontYAML\Parser">
-            <argument>null</argument>
-            <argument type="service" id="frontyaml.bridge"/>
-        </service>
     </services>
 </container>

@@ -53,8 +53,20 @@ class BrancherExtension extends Extension
         if (!empty($config['site'])) {
             $container->setParameter('castlepointanime.brancher.site', $config['site']);
         }
+        if (!empty($config['build']['root'])) {
+            $container->setParameter('castlepointanime.brancher.build.root', $config['build']['root']);
+        }
+        if (!empty($config['build']['output'])) {
+            $container->setParameter('castlepointanime.brancher.build.output', $config['build']['output']);
+        }
+        if (!empty($config['build']['templates'])) {
+            $container->setParameter('castlepointanime.brancher.build.templates', $config['build']['templates']);
+        }
         if (!empty($config['build']['excludes'])) {
             $container->setParameter('castlepointanime.brancher.build.excludes', $config['build']['excludes']);
+        }
+        if (!empty($config['build']['data'])) {
+            $container->setParameter('castlepointanime.brancher.build.data', $config['build']['data']);
         }
         if (!empty($config['twig']['extensions'])) {
             $container->setParameter('castlepointanime.brancher.twig.extensions', $config['twig']['extensions']);

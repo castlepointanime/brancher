@@ -1,4 +1,4 @@
 {% extends "base.html" %}
 
 {% block content %}Content Text
-{{ site.name }}{% endblock %}
+{% include data['test.html'].pathname %}{% endblock %}

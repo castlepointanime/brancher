@@ -1,7 +1,4 @@
----
-name: index.html
----
 {% extends "base.html" %}
 
 {% block content %}Content Text
-{{ site.name }}{% endblock %}
+{{ data['test.html'].contents }}{% endblock %}

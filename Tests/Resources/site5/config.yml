@@ -1,3 +1,6 @@
 brancher:
   site:
     name: "Title Text"
+  build:
+    data:
+    - "_data"
