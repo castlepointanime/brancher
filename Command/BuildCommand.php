@@ -21,6 +21,8 @@ namespace CastlePointAnime\Brancher\Command;
 
 use CastlePointAnime\Brancher\DependencyInjection\BrancherExtension;
 use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Config\Loader\DelegatingLoader;
+use Symfony\Component\Config\Loader\LoaderResolver;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -112,58 +114,37 @@ class BuildCommand extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
+        $root = $input->getArgument('root');
+        chdir($root);
+
         $containerBuilder = new ContainerBuilder();
         $extension = new BrancherExtension();
         $containerBuilder->registerExtension($extension);
-        $containerBuilder->loadFromExtension($extension->getAlias());
-
-        $root = $input->getArgument('root');
-        chdir($root);
-        $containerBuilder->setParameter('castlepointanime.brancher.build.data', $input->getOption('data-dir'));
-        $containerBuilder->setParameter(
-            'castlepointanime.brancher.build.includes',
-            array_filter(
-                array_merge([$root], array_map('realpath', $input->getOption('template-dir'))),
-                'is_executable'
-            )
-        );
-
-        // Try and load config file
-        $locator = new FileLocator([
-            $input->getArgument('root'),
-            getcwd(),
-            __DIR__.'/../',
+        $containerBuilder->loadFromExtension($extension->getAlias(), [
+            'build' => [
+                'root' => $root,
+                'output' => $input->getArgument('output'),
+                'templates' => array_map('realpath', $input->getOption('template-dir')),
+                'data' => $input->getOption('data-dir'),
+                'exclude' => $input->getOption('exclude'),
+            ],
         ]);
 
-        $config = $input->getOption('config');
+        // Try and load config file
+        $locator = new FileLocator([$input->getArgument('root'), __DIR__ . '/../',]);
         /** @var \Symfony\Component\DependencyInjection\Loader\FileLoader $loader */
-        $loader = null;
-        switch (substr($config, strrpos($config, '.') + 1)) {
-            case 'yml':
-                $loader = new YamlFileLoader($containerBuilder, $locator);
-                break;
-
-            case 'xml':
-                $loader = new XmlFileLoader($containerBuilder, $locator);
-                break;
-
-            case 'php':
-                $loader = new PhpFileLoader($containerBuilder, $locator);
-                break;
-
-            case 'ini':
-                $loader = new IniFileLoader($containerBuilder, $locator);
-                break;
-
-            default:
-                throw new \RuntimeException('Invalid type of configuration file (only yml, php, xml, ini)');
-        }
+        $loader = new DelegatingLoader(new LoaderResolver([
+            new YamlFileLoader($containerBuilder, $locator),
+            new XmlFileLoader($containerBuilder, $locator),
+            new PhpFileLoader($containerBuilder, $locator),
+            new IniFileLoader($containerBuilder, $locator)
+        ]));
 
         try {
-            $loader->load($config);
+            $loader->load($input->getOption('config'));
         } catch (\Exception $ex) {
             // Only rethrow if the issue was with the user-provided value
-            if ($config !== '_config.yml') {
+            if ($input->getOption('config') !== '_config.yml') {
                 throw $ex;
             }
         }
@@ -190,19 +171,16 @@ class BuildCommand extends Command
         $twig = $this->container->get('twig');
 
         // Find all files in root directory
-        $root = $input->getArgument('root');
         $renderFinder = new Finder();
-        $renderFinder
-            ->files()
-            ->in($root)
-            ->exclude($filesystem->makePathRelative($input->getOption('config'), $root))
-            ->exclude($input->getOption('template-dir'))
-            ->exclude($input->getOption('data-dir'))
-            ->exclude($input->getOption('exclude'))
-            ->exclude($input->getArgument('output'));
+        $renderFinder->files()->in($this->container->getParameter('castlepointanime.brancher.build.root'));
         array_map(
             [$renderFinder, 'notPath'],
-            $this->container->getParameter('castlepointanime.brancher.build.excludes')
+            array_merge(
+                $this->container->getParameter('castlepointanime.brancher.build.excludes'),
+                $this->container->getParameter('castlepointanime.brancher.build.templates'),
+                $this->container->getParameter('castlepointanime.brancher.build.data'),
+                [$this->container->getParameter('castlepointanime.brancher.build.output')]
+            )
         );
 
         $outputDir = $input->getArgument('output');

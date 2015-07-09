@@ -36,7 +36,10 @@
         <xs:sequence>
             <xs:element name="exclude" type="xs:string" maxOccurs="unbounded" />
             <xs:element name="data" type="xs:string" maxOccurs="unbounded" />
+            <xs:element name="templates" type="xs:string" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:attribute name="root" type="xs:string" default="." />
+        <xs:attribute name="output" type="xs:string" default="_site" />
     </xs:complexType>
     <xs:complexType name="twigConfig">
         <xs:sequence>
