@@ -36,12 +36,15 @@ class AppendDataIterator extends \AppendIterator implements ArrayAccessIterator
     /**
      * Add an iterator to the end of the list of iterators
      *
-     * @param ArrayAccessIterator $iterator
+     * @param \Iterator $iterator
      */
-    public function append(ArrayAccessIterator $iterator)
+    public function append(\Iterator $iterator)
     {
-        $this->iterators[] = $iterator;
+        if (!$iterator instanceof ArrayAccessIterator) {
+            throw new \InvalidArgumentException('Iterator must implement the ArrayAccessIterator interface');
+        }
 
+        $this->iterators[] = $iterator;
         parent::append($iterator);
     }
 
