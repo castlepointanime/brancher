@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}Content Text
+{% for file in data %}
+    {{ file.contents }}
+{% endfor %}
+{% endblock %}

@@ -19,6 +19,8 @@
 
 namespace CastlePointAnime\Brancher\Twig;
 
+use Symfony\Component\Filesystem\Filesystem;
+
 /**
  * Twig extension for brancher-specific functionality
  *
@@ -36,13 +38,27 @@ class BrancherExtension extends \Twig_Extension
     private $site;
 
     /**
+     * @var \Iterator Data available to the templates
+     */
+    private $data;
+
+    /**
      * Constructor
      *
+     * @param \Symfony\Component\Filesystem\Filesystem $filesystem Filesystem service
      * @param array $site Generic information about the site
+     * @param array $dataDirs Array of directories to collect data from
      */
-    public function __construct(array $site)
+    public function __construct(Filesystem $filesystem, array $site, array $dataDirs)
     {
         $this->site = $site;
+
+        $this->data = new AppendDataIterator();
+        foreach ($dataDirs as $dataDir) {
+            if (is_executable($dataDir)) {
+                $this->data->append(new DataIterator($filesystem, $dataDir));
+            }
+        }
     }
 
     /**
@@ -64,6 +80,7 @@ class BrancherExtension extends \Twig_Extension
     {
         return [
             'site' => $this->site,
+            'data' => $this->data,
         ];
     }
 }

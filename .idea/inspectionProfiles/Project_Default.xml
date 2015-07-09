@@ -61,6 +61,7 @@
     <inspection_tool class="FallThroughInSwitchStatementJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="GherkinBrokenTableInspection" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="GherkinMisplacedBackground" enabled="false" level="ERROR" enabled_by_default="false" />
+    <inspection_tool class="HamlNestedTagContent" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlDeprecatedTag" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlExtraClosingTag" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="HtmlFormInputWithoutLabel" enabled="false" level="WARNING" enabled_by_default="false" />
@@ -74,6 +75,7 @@
       </option>
       <option name="myCustomValuesEnabled" value="true" />
     </inspection_tool>
+    <inspection_tool class="HtmlUnknownBooleanAttribute" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="HtmlUnknownTag" enabled="false" level="WARNING" enabled_by_default="false">
       <option name="myValues">
         <value>
@@ -104,6 +106,7 @@
     <inspection_tool class="JSConstructorReturnsPrimitive" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JSDeprecatedSymbols" enabled="false" level="WEAK WARNING" enabled_by_default="false" />
     <inspection_tool class="JSDuplicatedDeclaration" enabled="false" level="WARNING" enabled_by_default="false" />
+    <inspection_tool class="JSFileReferences" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JSJQueryEfficiency" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JSLastCommaInArrayLiteral" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="JSLastCommaInObjectLiteral" enabled="false" level="ERROR" enabled_by_default="false" />
@@ -141,7 +144,7 @@
     <inspection_tool class="LessUnresolvedVariable" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="LoopStatementThatDoesntLoopJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="LossyEncoding" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="MessDetectorValidationInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+    <inspection_tool class="MessDetectorValidationInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="customRulesets">
         <list>
           <RulesetDescriptor>
@@ -154,7 +157,7 @@
     <inspection_tool class="OctalIntegerJS" enabled="false" level="WARNING" enabled_by_default="false" />
     <inspection_tool class="PhingDomInspection" enabled="false" level="ERROR" enabled_by_default="false" />
     <inspection_tool class="PhpAssignmentInConditionInspection" enabled="true" level="WARNING" enabled_by_default="true" />
-    <inspection_tool class="PhpCSValidationInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+    <inspection_tool class="PhpCSValidationInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="CODING_STANDARD" value="PSR2" />
       <option name="CUSTOM_RULESET_PATH" value="$USER_HOME$/Documents/vagrant/codesniffer/MediaWiki" />
     </inspection_tool>

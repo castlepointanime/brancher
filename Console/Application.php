@@ -46,8 +46,12 @@ class Application extends BaseApplication
      */
     public function getHelp()
     {
-        return $this->getLongVersion()."\n"."\n"."Copyright (C) 2015  Tyler Romeo <tylerromeo@gmail.com>\n"
-        ."This program is free software, and you are welcome to redistribute it\n"
-        ."under certain conditions. It comes with ABSOLUTELY NO WARRANTY.\n"."Run the 'license' command for details.";
+        return parent::getHelp() .
+            "\n" .
+            "\n" .
+            "Copyright (C) 2015  Tyler Romeo <tylerromeo@gmail.com>\n" .
+            "This program is free software, and you are welcome to redistribute it\n" .
+            "under certain conditions. It comes with ABSOLUTELY NO WARRANTY.\n" .
+            "Run the 'license' command for details.";
     }
 }

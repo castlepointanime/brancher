@@ -35,6 +35,7 @@
     <xs:complexType name="buildConfig">
         <xs:sequence>
             <xs:element name="exclude" type="xs:string" maxOccurs="unbounded" />
+            <xs:element name="data" type="xs:string" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="twigConfig">
