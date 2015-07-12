@@ -37,6 +37,20 @@ class DataFile extends SplFileInfo
      */
     public function __construct($pathname, $relPathname)
     {
-        parent::__construct($pathname, dirname($relPathname), $pathname);
+        parent::__construct($pathname, dirname($relPathname), $relPathname);
+    }
+
+    /**
+     * Get name of the template for this file
+     *
+     * Sometimes you may want to render a data file's contents as
+     * a Twig template. This function returns the namespace and path
+     * for retrieving this file as a template
+     *
+     * @return string
+     */
+    public function getTemplate()
+    {
+        return "@data/{$this->getRelativePathname()}";
     }
 }

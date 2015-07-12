@@ -39,6 +39,20 @@ class BrancherExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        // Add blank scaffolding so we don't have undefined index errors
+        array_unshift($configs, [
+            'site' => [],
+            'build' => [
+                'output' => '',
+                'templates' => [],
+                'excludes' => [],
+                'data' => [],
+            ],
+            'twig' => [
+                'extensions' => [],
+            ],
+        ]);
+
         $config = $this->processConfiguration(
             $this->getConfiguration($configs, $container),
             $configs
@@ -50,27 +64,26 @@ class BrancherExtension extends Extension
         );
         $loader->load('services.xml');
 
-        if (!empty($config['site'])) {
-            $container->setParameter('castlepointanime.brancher.site', $config['site']);
+        // Add some defaults
+        if (!count($config['build']['templates']) && is_dir("{$config['build']['root']}/_templates")) {
+            $config['build']['templates'][] = "{$config['build']['root']}/_templates";
         }
-        if (!empty($config['build']['root'])) {
-            $container->setParameter('castlepointanime.brancher.build.root', $config['build']['root']);
+        if (!count($config['build']['data']) && is_dir("{$config['build']['root']}/_data")) {
+            $config['build']['data'][] = "{$config['build']['root']}/_data";
         }
-        if (!empty($config['build']['output'])) {
-            $container->setParameter('castlepointanime.brancher.build.output', $config['build']['output']);
+        if (!$config['build']['output']) {
+            $config['build']['output'] = "{$config['build']['root']}/_site";
         }
-        if (!empty($config['build']['templates'])) {
-            $container->setParameter('castlepointanime.brancher.build.templates', $config['build']['templates']);
-        }
-        if (!empty($config['build']['excludes'])) {
-            $container->setParameter('castlepointanime.brancher.build.excludes', $config['build']['excludes']);
-        }
-        if (!empty($config['build']['data'])) {
-            $container->setParameter('castlepointanime.brancher.build.data', $config['build']['data']);
-        }
-        if (!empty($config['twig']['extensions'])) {
-            $container->setParameter('castlepointanime.brancher.twig.extensions', $config['twig']['extensions']);
-        }
+
+        $container->getParameterBag()->add([
+            'castlepointanime.brancher.site' => $config['site'],
+            'castlepointanime.brancher.build.root' => $config['build']['root'],
+            'castlepointanime.brancher.build.output' => $config['build']['output'],
+            'castlepointanime.brancher.build.templates' => $config['build']['templates'],
+            'castlepointanime.brancher.build.excludes' => $config['build']['excludes'],
+            'castlepointanime.brancher.build.data' => $config['build']['data'],
+            'castlepointanime.brancher.twig.extensions' => $config['twig']['extensions'],
+        ]);
     }
 
     /**

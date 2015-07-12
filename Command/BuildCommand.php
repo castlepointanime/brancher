@@ -66,15 +66,13 @@ class BuildCommand extends Command
                 'data-dir',
                 'd',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Specify directories to collect data from',
-                ['_data']
+                'Specify directories to collect data from (defaults to <root>/_data)'
             )
             ->addOption(
                 'template-dir',
                 't',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
-                'Directories to look for templates in',
-                ['_templates']
+                'Directories to look for templates in (defaults to <root>/_templates)'
             )
             ->addOption(
                 'exclude',
@@ -91,8 +89,7 @@ class BuildCommand extends Command
             ->addArgument(
                 'output',
                 InputArgument::OPTIONAL,
-                'Output directory to build the website into',
-                '_site'
+                'Output directory to build the website into (defaults to <root>/_site)'
             );
     }
 
@@ -115,20 +112,11 @@ class BuildCommand extends Command
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $root = $input->getArgument('root');
-        chdir($root);
 
+        // Setup container
         $containerBuilder = new ContainerBuilder();
         $extension = new BrancherExtension();
         $containerBuilder->registerExtension($extension);
-        $containerBuilder->loadFromExtension($extension->getAlias(), [
-            'build' => [
-                'root' => $root,
-                'output' => $input->getArgument('output'),
-                'templates' => array_map('realpath', $input->getOption('template-dir')),
-                'data' => $input->getOption('data-dir'),
-                'exclude' => $input->getOption('exclude'),
-            ],
-        ]);
 
         // Try and load config file
         $locator = new FileLocator([$input->getArgument('root'), __DIR__ . '/../',]);
@@ -148,6 +136,17 @@ class BuildCommand extends Command
                 throw $ex;
             }
         }
+
+        // Add in final config from command line options
+        $containerBuilder->loadFromExtension($extension->getAlias(), [
+            'build' => array_filter([
+                'root' => $root,
+                'output' => $input->getArgument('output'),
+                'templates' => array_filter(array_map('realpath', $input->getOption('template-dir')), 'is_dir'),
+                'data' => $input->getOption('data-dir'),
+                'exclude' => $input->getOption('exclude'),
+            ]),
+        ]);
 
         $containerBuilder->compile();
         $this->setContainer($containerBuilder);

@@ -60,7 +60,7 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
     public function current()
     {
         $pathname = parent::current();
-        $relPathname = $this->filesystem->makePathRelative($pathname, $this->root);
+        $relPathname = rtrim($this->filesystem->makePathRelative($pathname, $this->root), '/');
 
         return new DataFile($pathname, $relPathname);
     }

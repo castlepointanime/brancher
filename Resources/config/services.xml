@@ -41,6 +41,10 @@
             <call method="addPath">
                 <argument>%castlepointanime.brancher.build.root%</argument>
             </call>
+            <call method="setPaths">
+                <argument>%castlepointanime.brancher.build.data%</argument>
+                <argument>data</argument>
+            </call>
         </service>
         <service id="twig" class="Twig_Environment">
             <argument type="service" id="brancher.twig_loader" />
