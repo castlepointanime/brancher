@@ -22,7 +22,12 @@ namespace CastlePointAnime\Brancher;
 
 use CastlePointAnime\Brancher\Console\Application;
 
-require __DIR__.'/vendor/autoload.php';
+// Try finding autoloader in different places
+foreach (['vendor/autoload.php', '../../autoload.php'] as $file) {
+    if (file_exists(__DIR__ . '/' . $file)) {
+        require __DIR__ . '/' . $file;
+    }
+}
 
 $application = new Application();
 $application->add(new Command\LicenseCommand());
