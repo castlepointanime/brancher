@@ -26,10 +26,10 @@ namespace CastlePointAnime\Brancher\Twig;
  *
  * @package CastlePointAnime\Brancher\Twig
  */
-class AppendDataIterator extends \AppendIterator implements ArrayAccessIterator
+class AppendDataIterator extends \AppendIterator implements ArrayAccessIteratorInterface
 {
     /**
-     * @var ArrayAccessIterator[]
+     * @var ArrayAccessIteratorInterface[]
      */
     private $iterators;
 
@@ -40,8 +40,8 @@ class AppendDataIterator extends \AppendIterator implements ArrayAccessIterator
      */
     public function append(\Iterator $iterator)
     {
-        if (!$iterator instanceof ArrayAccessIterator) {
-            throw new \InvalidArgumentException('Iterator must implement the ArrayAccessIterator interface');
+        if (!$iterator instanceof ArrayAccessIteratorInterface) {
+            throw new \InvalidArgumentException('Iterator must implement the ArrayAccessIteratorInterface interface');
         }
 
         $this->iterators[] = $iterator;

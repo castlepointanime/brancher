@@ -24,6 +24,6 @@ namespace CastlePointAnime\Brancher\Twig;
  *
  * @package CastlePointAnime\Brancher\Twig
  */
-interface ArrayAccessIterator extends \ArrayAccess, \Iterator
+interface ArrayAccessIteratorInterface extends \ArrayAccess, \Iterator
 {
 }

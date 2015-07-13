@@ -27,7 +27,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @package CastlePointAnime\Brancher\Twig
  */
-class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
+class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInterface
 {
     /**
      * @var \Symfony\Component\Filesystem\Filesystem Filesystem service
