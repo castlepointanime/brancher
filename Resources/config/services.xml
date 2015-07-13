@@ -33,10 +33,12 @@
     <services>
         <service id="brancher.twig_extension" class="CastlePointAnime\Brancher\Twig\BrancherExtension" public="false">
             <argument type="service" id="filesystem" />
+            <argument type="service" id="frontyaml" />
             <argument>%castlepointanime.brancher.site%</argument>
             <argument>%castlepointanime.brancher.build.data%</argument>
         </service>
-        <service id="brancher.twig_loader" class="Twig_Loader_Filesystem" public="false">
+        <service id="brancher.twig_loader" class="CastlePointAnime\Brancher\Twig\FrontYamlLoader" public="false">
+            <argument type="service" id="frontyaml" />
             <argument>%castlepointanime.brancher.build.templates%</argument>
             <call method="addPath">
                 <argument>%castlepointanime.brancher.build.root%</argument>
@@ -63,6 +65,14 @@
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 
         <service id="parsedown" class="ParsedownExtra"/>
+        <service id="frontyaml.bridge" class="Mni\FrontYAML\Bridge\Parsedown\ParsedownParser" public="false">
+            <argument type="service" id="parsedown"/>
+        </service>
+        <service id="frontyaml" class="Mni\FrontYAML\Parser">
+            <argument>null</argument>
+            <argument type="service" id="frontyaml.bridge"/>
+        </service>
+
         <service id="finfo" class="finfo">
             <argument type="constant">FILEINFO_MIME</argument>
         </service>

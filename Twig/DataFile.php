@@ -19,6 +19,7 @@
 
 namespace CastlePointAnime\Brancher\Twig;
 
+use Mni\FrontYAML\Parser;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
@@ -30,14 +31,27 @@ use Symfony\Component\Finder\SplFileInfo;
 class DataFile extends SplFileInfo
 {
     /**
+     * @var \Mni\FrontYAML\Parser Front YAML parser service
+     */
+    private $parser;
+
+    /**
+     * @var array|null Arbitrary data loaded from the front YAML
+     * @warning This is loaded dynamically; call getData() instead
+     */
+    private $data = null;
+
+    /**
      * Constructor
      *
+     * @param \Mni\FrontYAML\Parser $parser Front YAML parser
      * @param string $pathname
      * @param string $relPathname
      */
-    public function __construct($pathname, $relPathname)
+    public function __construct(Parser $parser, $pathname, $relPathname)
     {
         parent::__construct($pathname, dirname($relPathname), $relPathname);
+        $this->parser = $parser;
     }
 
     /**
@@ -52,5 +66,19 @@ class DataFile extends SplFileInfo
     public function getTemplate()
     {
         return "@data/{$this->getRelativePathname()}";
+    }
+
+    /**
+     * Get the data from the front YAML, and load it if not loaded already
+     *
+     * @return array|null
+     */
+    public function getData()
+    {
+        if ($this->data === null) {
+            $this->data = $this->parser->parse($this->getContents(), false)->getYAML();
+        }
+
+        return $this->data;
     }
 }

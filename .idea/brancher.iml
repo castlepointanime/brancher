@@ -54,6 +54,7 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/config" />
           <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
           <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/vendor/mnapoli/front-yaml" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-timer" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />
@@ -87,6 +88,7 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/config" />
           <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
           <root url="file://$MODULE_DIR$/vendor/symfony/yaml" />
+          <root url="file://$MODULE_DIR$/vendor/mnapoli/front-yaml" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-timer" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/phpunit/php-code-coverage" />

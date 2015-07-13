@@ -19,6 +19,7 @@
 
 namespace CastlePointAnime\Brancher\Twig;
 
+use Mni\FrontYAML\Parser;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -34,6 +35,11 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
     private $filesystem;
 
     /**
+     * @var \Mni\FrontYAML\Parser Front YAML parser service
+     */
+    private $parser;
+
+    /**
      * @var string Root directory
      */
     private $root;
@@ -42,13 +48,15 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
      * Constructor
      *
      * @param \Symfony\Component\Filesystem\Filesystem $filesystem Filesystem service
+     * @param \Mni\FrontYAML\Parser $parser Front YAML parser
      * @param string $path Path to recurse through
      */
-    public function __construct(Filesystem $filesystem, $path)
+    public function __construct(Filesystem $filesystem, Parser $parser, $path)
     {
         parent::__construct($path, self::CURRENT_AS_PATHNAME | self::SKIP_DOTS);
 
         $this->filesystem = $filesystem;
+        $this->parser = $parser;
         $this->root = $path;
     }
 
@@ -62,7 +70,7 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
         $pathname = parent::current();
         $relPathname = rtrim($this->filesystem->makePathRelative($pathname, $this->root), '/');
 
-        return new DataFile($pathname, $relPathname);
+        return new DataFile($this->parser, $pathname, $relPathname);
     }
 
     /**
@@ -77,9 +85,9 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIterator
     {
         $path = "{$this->root}/$key";
         if (is_dir($path)) {
-            return new self($this->filesystem, $path);
+            return new self($this->filesystem, $this->parser, $path);
         } else {
-            return new DataFile($path, $key);
+            return new DataFile($this->parser, $path, $key);
         }
     }
 

@@ -19,6 +19,7 @@
 
 namespace CastlePointAnime\Brancher\Twig;
 
+use Mni\FrontYAML\Parser;
 use Symfony\Component\Filesystem\Filesystem;
 
 /**
@@ -46,17 +47,18 @@ class BrancherExtension extends \Twig_Extension
      * Constructor
      *
      * @param \Symfony\Component\Filesystem\Filesystem $filesystem Filesystem service
+     * @param \Mni\FrontYAML\Parser $parser Front YAML parser
      * @param array $site Generic information about the site
      * @param array $dataDirs Array of directories to collect data from
      */
-    public function __construct(Filesystem $filesystem, array $site, array $dataDirs)
+    public function __construct(Filesystem $filesystem, Parser $parser, array $site, array $dataDirs)
     {
         $this->site = $site;
 
         $this->data = new AppendDataIterator();
         foreach ($dataDirs as $dataDir) {
             if (is_executable($dataDir)) {
-                $this->data->append(new DataIterator($filesystem, $dataDir));
+                $this->data->append(new DataIterator($filesystem, $parser, $dataDir));
             }
         }
     }
