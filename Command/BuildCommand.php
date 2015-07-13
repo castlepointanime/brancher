@@ -168,6 +168,8 @@ class BuildCommand extends Command
         $mdParser = $this->container->get('parsedown');
         /** @var \Twig_Environment $twig */
         $twig = $this->container->get('twig');
+        /** @var \finfo $finfo */
+        $finfo = $this->container->get('finfo');
 
         // Find all files in root directory
         $renderFinder = new Finder();
@@ -186,19 +188,26 @@ class BuildCommand extends Command
         // Render every file and dump to output
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
-            $rendered = $twig->render($fileInfo->getRelativePathname());
-
-            // Additional rendering for certain file types
-            switch ($fileInfo->getExtension()) {
-                case 'md':
-                case 'markdown':
-                    $rendered = $mdParser->parse($rendered);
-                    break;
-            }
-
-            // Output to final file
             $outputFilename = "$outputDir/{$fileInfo->getRelativePathname()}";
-            $filesystem->dumpFile($outputFilename, $rendered);
+
+            if (substr($finfo->file($fileInfo->getPathname()), 0, 4) === 'text') {
+                // Render text files
+                $rendered = $twig->render($fileInfo->getRelativePathname());
+
+                // Additional rendering for certain file types
+                switch ($fileInfo->getExtension()) {
+                    case 'md':
+                    case 'markdown':
+                        $rendered = $mdParser->parse($rendered);
+                        break;
+                }
+
+                // Output to final file
+                $filesystem->dumpFile($outputFilename, $rendered);
+            } else {
+                // Dump binary files verbatim into output directory
+                $filesystem->copy($fileInfo->getPathname(), $outputFilename);
+            }
         }
     }
 }

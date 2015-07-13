@@ -63,5 +63,8 @@
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 
         <service id="parsedown" class="ParsedownExtra"/>
+        <service id="finfo" class="finfo">
+            <argument type="constant">FILEINFO_MIME</argument>
+        </service>
     </services>
 </container>

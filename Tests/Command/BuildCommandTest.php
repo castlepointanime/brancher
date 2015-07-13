@@ -45,6 +45,10 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         $sites = [];
         foreach ($iterator as $pathname) {
+            if (substr(basename($pathname), 0, 4) !== 'site') {
+                continue;
+            }
+
             // Try and find config file if it exists
             $finder = new Finder();
             $finder->in($pathname)->files()->name('/_config\.(xml|yml|php)/');
