@@ -27,7 +27,7 @@ use Symfony\Component\Filesystem\Filesystem;
  *
  * @package CastlePointAnime\Brancher\Twig
  */
-class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInterface
+class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInterface, \Countable
 {
     /**
      * @var \Symfony\Component\Filesystem\Filesystem Filesystem service
@@ -137,5 +137,15 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
     public function offsetUnset($key)
     {
         throw new \LogicException('Cannot unset data in immutable object');
+    }
+
+    /**
+     * Simple wrapper to get the number of files in the directory
+     *
+     * @return int Number of items in iterator
+     */
+    public function count()
+    {
+        return iterator_count($this);
     }
 }
