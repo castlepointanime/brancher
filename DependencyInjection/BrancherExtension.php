@@ -79,13 +79,20 @@ class BrancherExtension extends Extension
             $config['build']['output'] = "{$config['build']['root']}/_site";
         }
 
+        $makeAbsolute = function ($path) use ($config) {
+            return !$path || $path[0] === '/'
+                ? $path
+                : "{$config['build']['root']}/$path";
+        };
+
         $container->getParameterBag()->add([
             'castlepointanime.brancher.site' => $config['site'],
-            'castlepointanime.brancher.build.root' => $config['build']['root'],
-            'castlepointanime.brancher.build.output' => $config['build']['output'],
-            'castlepointanime.brancher.build.templates' => $config['build']['templates'],
-            'castlepointanime.brancher.build.excludes' => $config['build']['excludes'],
-            'castlepointanime.brancher.build.data' => $config['build']['data'],
+            'castlepointanime.brancher.build.root' => $makeAbsolute($config['build']['root']),
+            'castlepointanime.brancher.build.output' => $makeAbsolute($config['build']['output']),
+            'castlepointanime.brancher.build.templates' => array_map($makeAbsolute, $config['build']['templates']),
+            'castlepointanime.brancher.build.excludes' => array_map($makeAbsolute, $config['build']['excludes']),
+            'castlepointanime.brancher.build.resources' => $makeAbsolute($config['build']['resources']),
+            'castlepointanime.brancher.build.data' => array_map($makeAbsolute, $config['build']['data']),
             'castlepointanime.brancher.twig.extensions' => $config['twig']['extensions'],
         ]);
     }

@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * This file is part of brancher, a static site generation tool
@@ -18,19 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace CastlePointAnime\Brancher;
+namespace CastlePointAnime\Brancher\Tests;
 
-use CastlePointAnime\Brancher\Console\Application;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
-// Try finding autoloader in different places
-foreach (['vendor/autoload.php', '../../autoload.php'] as $file) {
-    if (file_exists(__DIR__ . '/' . $file)) {
-        /** @noinspection PhpIncludeInspection */
-        require __DIR__ . '/' . $file;
+/**
+ * Fake listener for working with unit tests
+ *
+ * @package CastlePointAnime\Brancher\Tests
+ */
+class CustomListener implements EventSubscriberInterface
+{
+    /**
+     * Get the list of subscribed events
+     */
+    public static function getSubscribedEvents()
+    {
+        return [];
     }
 }
-
-$application = new Application();
-$application->add(new Command\LicenseCommand());
-$application->add(new Command\BuildCommand());
-$application->run();

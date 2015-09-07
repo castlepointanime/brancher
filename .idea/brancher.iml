@@ -69,6 +69,7 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/config" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/symfony/dependency-injection" />
+          <root url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher" />
           <root url="file://$MODULE_DIR$/vendor/symfony/filesystem" />
           <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
           <root url="file://$MODULE_DIR$/vendor/symfony/process" />
@@ -105,6 +106,7 @@
           <root url="file://$MODULE_DIR$/vendor/symfony/config" />
           <root url="file://$MODULE_DIR$/vendor/symfony/console" />
           <root url="file://$MODULE_DIR$/vendor/symfony/dependency-injection" />
+          <root url="file://$MODULE_DIR$/vendor/symfony/event-dispatcher" />
           <root url="file://$MODULE_DIR$/vendor/symfony/filesystem" />
           <root url="file://$MODULE_DIR$/vendor/symfony/finder" />
           <root url="file://$MODULE_DIR$/vendor/symfony/process" />
