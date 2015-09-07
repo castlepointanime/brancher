@@ -108,7 +108,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($finder as $fileInfo) {
-            $this->assertFileEquals($fileInfo->getPathname(), "$outputDir/{$fileInfo->getRelativePathname()}");
+            $this->assertFileEquals($fileInfo->getPathname(), "$outputDir/{$fileInfo->getRelativePathname()}", $fileInfo->getPathname());
         }
 
         // Test to make sure excluded files do not exist

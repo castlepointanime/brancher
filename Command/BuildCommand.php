@@ -19,6 +19,7 @@
 
 namespace CastlePointAnime\Brancher\Command;
 
+use Assetic\Extension\Twig\TwigResource;
 use CastlePointAnime\Brancher\DependencyInjection\BrancherExtension;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
@@ -74,6 +75,12 @@ class BuildCommand extends Command
                 't',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Directories to look for templates in (defaults to <root>/_templates)'
+            )
+            ->addOption(
+                'resource-dir',
+                'r',
+                InputOption::VALUE_REQUIRED,
+                'Directory to allow loading resources via Assetic'
             )
             ->addOption(
                 'exclude',
@@ -167,10 +174,16 @@ class BuildCommand extends Command
         $filesystem = $this->container->get('filesystem');
         /** @var \ParsedownExtra $mdParser */
         $mdParser = $this->container->get('parsedown');
+        /** @var \Twig_LoaderInterface $twigLoader */
+        $twigLoader = $this->container->get('brancher.twig_loader');
         /** @var \Twig_Environment $twig */
         $twig = $this->container->get('twig');
         /** @var \finfo $finfo */
         $finfo = $this->container->get('finfo');
+        /** @var \Assetic\Factory\LazyAssetManager $manager */
+        $manager = $this->container->get('brancher.manager');
+        /** @var \Assetic\AssetWriter $writer */
+        $writer = $this->container->get('brancher.writer');
 
         $root = $this->container->getParameter('castlepointanime.brancher.build.root');
         $outputDir = $input->getArgument('output');
@@ -207,7 +220,11 @@ class BuildCommand extends Command
 
             if (substr($finfo->file($fileInfo->getPathname()), 0, 4) === 'text') {
                 // Render text files
-                $rendered = $twig->render($fileInfo->getRelativePathname());
+                $template = $twig->loadTemplate($fileInfo->getRelativePathname());
+                $rendered = $template->render([
+                    'path' => $fileInfo->getRelativePathname(),
+                ]);
+                $manager->addResource(new TwigResource($twigLoader, $template), 'twig');
 
                 // Additional rendering for certain file types
                 switch ($fileInfo->getExtension()) {
@@ -224,5 +241,7 @@ class BuildCommand extends Command
                 $filesystem->copy($fileInfo->getPathname(), $outputFilename);
             }
         }
+
+        $writer->writeManagerAssets($manager);
     }
 }

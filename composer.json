@@ -23,7 +23,8 @@
     "symfony/dependency-injection": "~2.7",
     "symfony/config": "~2.7",
     "erusev/parsedown-extra": "^0.7.0",
-    "mnapoli/front-yaml": "1.5.0"
+    "mnapoli/front-yaml": "1.5.0",
+    "kriswallsmith/assetic": "~1.3"
   },
   "require-dev": {
     "phpunit/phpunit": "~4.7",

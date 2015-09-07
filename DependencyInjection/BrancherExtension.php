@@ -44,6 +44,7 @@ class BrancherExtension extends Extension
             'site' => [],
             'build' => [
                 'output' => '',
+                'resources' => '',
                 'templates' => [],
                 'excludes' => [],
                 'data' => [],
@@ -70,6 +71,9 @@ class BrancherExtension extends Extension
         }
         if (!count($config['build']['data']) && is_dir("{$config['build']['root']}/_data")) {
             $config['build']['data'][] = "{$config['build']['root']}/_data";
+        }
+        if (!$config['build']['resources'] && is_dir("{$config['build']['root']}/_resources")) {
+            $config['build']['resources'] = "{$config['build']['root']}/_resources";
         }
         if (!$config['build']['output']) {
             $config['build']['output'] = "{$config['build']['root']}/_site";

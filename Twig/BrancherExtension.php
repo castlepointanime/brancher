@@ -86,4 +86,18 @@ class BrancherExtension extends \Twig_Extension
             'data' => $this->data,
         ];
     }
+
+    /**
+     * Get global functions to be exposed to scripts
+     *
+     * @return \Twig_SimpleFunction[] Array of functions
+     */
+    public function getFunctions()
+    {
+        return [
+            new \Twig_SimpleFunction('to_root', function (array $context) {
+                return str_repeat('../', count(explode('/', trim($context['path'], '/'))) - 1);
+            }, ['needs_context' => true]),
+        ];
+    }
 }

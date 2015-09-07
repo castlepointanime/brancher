@@ -51,6 +51,7 @@ class Configuration implements ConfigurationInterface
                     ->children()
                         ->scalarNode('root')->end()
                         ->scalarNode('output')->end()
+                        ->scalarNode('resources')->end()
                         ->arrayNode('templates')
                             ->prototype('scalar')
                             ->end()
