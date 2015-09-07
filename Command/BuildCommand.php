@@ -35,6 +35,7 @@ use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Finder\Finder;
+use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * Command that builds a site from one directory into another
@@ -171,9 +172,24 @@ class BuildCommand extends Command
         /** @var \finfo $finfo */
         $finfo = $this->container->get('finfo');
 
+        $root = $this->container->getParameter('castlepointanime.brancher.build.root');
+        $outputDir = $input->getArgument('output');
+
+        // First, clean up non-existent files
+        if (file_exists($outputDir)) {
+            $deleteFinder = new Finder();
+            $deleteFinder->in($outputDir)->filter(function (SplFileInfo $fileInfo) use ($root) {
+                // Filter out entries where the source does not exist, or is not the same type
+                return !file_exists("$root/{$fileInfo->getRelativePathname()}")
+                || $fileInfo->isDir() && !is_dir("$root/{$fileInfo->getRelativePathname()}")
+                || $fileInfo->isFile() && !is_file("$root/{$fileInfo->getRelativePathname()}");
+            });
+            $filesystem->remove($deleteFinder);
+        }
+
         // Find all files in root directory
         $renderFinder = new Finder();
-        $renderFinder->files()->in($this->container->getParameter('castlepointanime.brancher.build.root'));
+        $renderFinder->files()->in($root);
         array_map(
             [$renderFinder, 'notPath'],
             array_merge(
@@ -184,7 +200,6 @@ class BuildCommand extends Command
             )
         );
 
-        $outputDir = $input->getArgument('output');
         // Render every file and dump to output
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
