@@ -78,7 +78,7 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
         $relPathname = rtrim($this->filesystem->makePathRelative($pathname, $this->root), '/');
 
         if (is_dir($pathname)) {
-            return new self($this->filesystem, $this->parser, $this->root, $relPathname);
+            return new self($this->filesystem, $this->parser, $this->root, "$relPathname/");
         } else {
             return new DataFile($this->parser, $pathname, $relPathname);
         }
