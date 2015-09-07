@@ -57,8 +57,9 @@ class BrancherExtension extends \Twig_Extension
 
         $this->data = new AppendDataIterator();
         foreach ($dataDirs as $dataDir) {
+            $dataDir = rtrim($dataDir, '/') . '/';
             if (is_executable($dataDir)) {
-                $this->data->append(new DataIterator($filesystem, $parser, $dataDir));
+                $this->data->append(new DataIterator($filesystem, $parser, $dataDir, ''));
             }
         }
     }

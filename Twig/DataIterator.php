@@ -45,19 +45,26 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
     private $root;
 
     /**
+     * @var string Relative path to this directory
+     */
+    private $path;
+
+    /**
      * Constructor
      *
      * @param \Symfony\Component\Filesystem\Filesystem $filesystem Filesystem service
      * @param \Mni\FrontYAML\Parser $parser Front YAML parser
+     * @param string $root Root directory
      * @param string $path Path to recurse through
      */
-    public function __construct(Filesystem $filesystem, Parser $parser, $path)
+    public function __construct(Filesystem $filesystem, Parser $parser, $root, $path)
     {
-        parent::__construct($path, self::CURRENT_AS_PATHNAME | self::SKIP_DOTS);
+        parent::__construct("$root$path", self::CURRENT_AS_PATHNAME | self::SKIP_DOTS);
 
         $this->filesystem = $filesystem;
         $this->parser = $parser;
-        $this->root = $path;
+        $this->root = $root;
+        $this->path = $path;
     }
 
     /**
@@ -70,7 +77,11 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
         $pathname = parent::current();
         $relPathname = rtrim($this->filesystem->makePathRelative($pathname, $this->root), '/');
 
-        return new DataFile($this->parser, $pathname, $relPathname);
+        if (is_dir($pathname)) {
+            return new self($this->filesystem, $this->parser, $this->root, $relPathname);
+        } else {
+            return new DataFile($this->parser, $pathname, $relPathname);
+        }
     }
 
     /**
@@ -83,11 +94,11 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
      */
     public function offsetGet($key)
     {
-        $path = "{$this->root}/$key";
-        if (is_dir($path)) {
-            return new self($this->filesystem, $this->parser, $path);
+        $path = "{$this->path}$key";
+        if (is_dir("{$this->root}$path")) {
+            return new self($this->filesystem, $this->parser, $this->root, "$path/");
         } else {
-            return new DataFile($this->parser, $path, $key);
+            return new DataFile($this->parser, "{$this->root}$path", $path);
         }
     }
 
@@ -100,7 +111,7 @@ class DataIterator extends \FilesystemIterator implements ArrayAccessIteratorInt
      */
     public function offsetExists($key)
     {
-        return file_exists("{$this->root}/$key");
+        return file_exists("{$this->root}/{$this->path}/$key");
     }
 
     /**
