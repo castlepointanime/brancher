@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * This file is part of brancher, a static site generation tool
@@ -18,19 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace CastlePointAnime\Brancher;
+namespace CastlePointAnime\Brancher\Event;
 
-use CastlePointAnime\Brancher\Console\Application;
+use Symfony\Component\EventDispatcher\Event;
 
-// Try finding autoloader in different places
-foreach (['vendor/autoload.php', '../../autoload.php'] as $file) {
-    if (file_exists(__DIR__ . '/' . $file)) {
-        /** @noinspection PhpIncludeInspection */
-        require __DIR__ . '/' . $file;
-    }
+/**
+ * The brancher.teardown event is thrown at the end of the build.
+ */
+class TeardownEvent extends Event
+{
 }
-
-$application = new Application();
-$application->add(new Command\LicenseCommand());
-$application->add(new Command\BuildCommand());
-$application->run();

@@ -1,0 +1,5 @@
+brancher:
+  site:
+    name: "Title Text"
+  build:
+    resources: "_resources"

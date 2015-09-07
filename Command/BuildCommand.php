@@ -19,7 +19,13 @@
 
 namespace CastlePointAnime\Brancher\Command;
 
+use Assetic\Extension\Twig\TwigResource;
+use CastlePointAnime\Brancher\BrancherEvents;
 use CastlePointAnime\Brancher\DependencyInjection\BrancherExtension;
+use CastlePointAnime\Brancher\Event\OldFileEvent;
+use CastlePointAnime\Brancher\Event\RenderEvent;
+use CastlePointAnime\Brancher\Event\SetupEvent;
+use CastlePointAnime\Brancher\Event\TeardownEvent;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -34,6 +40,7 @@ use Symfony\Component\DependencyInjection\Loader\IniFileLoader;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
 use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\EventDispatcher\DependencyInjection\RegisterListenersPass;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
 
@@ -74,6 +81,12 @@ class BuildCommand extends Command
                 't',
                 InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
                 'Directories to look for templates in (defaults to <root>/_templates)'
+            )
+            ->addOption(
+                'resource-dir',
+                'r',
+                InputOption::VALUE_REQUIRED,
+                'Directory to allow loading resources via Assetic'
             )
             ->addOption(
                 'exclude',
@@ -118,6 +131,13 @@ class BuildCommand extends Command
         $containerBuilder = new ContainerBuilder();
         $extension = new BrancherExtension();
         $containerBuilder->registerExtension($extension);
+        $containerBuilder->addCompilerPass(
+            new RegisterListenersPass(
+                'event_dispatcher',
+                'brancher.event_listener',
+                'brancher.event_subscriber'
+            )
+        );
 
         // Try and load config file
         $locator = new FileLocator([$input->getArgument('root'), __DIR__ . '/../',]);
@@ -167,10 +187,18 @@ class BuildCommand extends Command
         $filesystem = $this->container->get('filesystem');
         /** @var \ParsedownExtra $mdParser */
         $mdParser = $this->container->get('parsedown');
+        /** @var \Twig_LoaderInterface $twigLoader */
+        $twigLoader = $this->container->get('brancher.twig_loader');
         /** @var \Twig_Environment $twig */
         $twig = $this->container->get('twig');
         /** @var \finfo $finfo */
         $finfo = $this->container->get('finfo');
+        /** @var \Assetic\Factory\LazyAssetManager $manager */
+        $manager = $this->container->get('brancher.manager');
+        /** @var \Assetic\AssetWriter $writer */
+        $writer = $this->container->get('brancher.writer');
+        /** @var \Symfony\Component\EventDispatcher\EventDispatcher $dispatcher */
+        $dispatcher = $this->container->get('event_dispatcher');
 
         $root = $this->container->getParameter('castlepointanime.brancher.build.root');
         $outputDir = $input->getArgument('output');
@@ -178,11 +206,20 @@ class BuildCommand extends Command
         // First, clean up non-existent files
         if (file_exists($outputDir)) {
             $deleteFinder = new Finder();
-            $deleteFinder->in($outputDir)->filter(function (SplFileInfo $fileInfo) use ($root) {
+            $deleteFinder->in($outputDir)->filter(function (SplFileInfo $dstFile) use ($root, $dispatcher) {
                 // Filter out entries where the source does not exist, or is not the same type
-                return !file_exists("$root/{$fileInfo->getRelativePathname()}")
-                || $fileInfo->isDir() && !is_dir("$root/{$fileInfo->getRelativePathname()}")
-                || $fileInfo->isFile() && !is_file("$root/{$fileInfo->getRelativePathname()}");
+                $srcFile = new SplFileInfo(
+                    "$root/{$dstFile->getRelativePathname()}",
+                    $dstFile->getRelativePath(),
+                    $dstFile->getRelativePathname()
+                );
+                $old = $dstFile->isDir() && !$srcFile->isDir()
+                    || $dstFile->isFile() && !$srcFile->isFile();
+
+                $event = new OldFileEvent($srcFile, $dstFile, $old);
+                $dispatcher->dispatch(BrancherEvents::OLDFILE, $event);
+
+                return $event->isOld();
             });
             $filesystem->remove($deleteFinder);
         }
@@ -192,13 +229,16 @@ class BuildCommand extends Command
         $renderFinder->files()->in($root);
         array_map(
             [$renderFinder, 'notPath'],
-            array_merge(
+            array_filter(array_merge(
                 $this->container->getParameter('castlepointanime.brancher.build.excludes'),
                 $this->container->getParameter('castlepointanime.brancher.build.templates'),
                 $this->container->getParameter('castlepointanime.brancher.build.data'),
-                [$this->container->getParameter('castlepointanime.brancher.build.output')]
-            )
+                [$this->container->getParameter('castlepointanime.brancher.build.output')],
+                [$this->container->getParameter('castlepointanime.brancher.build.resources')]
+            ))
         );
+
+        $dispatcher->dispatch(BrancherEvents::SETUP, new SetupEvent($renderFinder));
 
         // Render every file and dump to output
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
@@ -207,7 +247,15 @@ class BuildCommand extends Command
 
             if (substr($finfo->file($fileInfo->getPathname()), 0, 4) === 'text') {
                 // Render text files
-                $rendered = $twig->render($fileInfo->getRelativePathname());
+                $template = $twig->loadTemplate($fileInfo->getRelativePathname());
+                $manager->addResource(new TwigResource($twigLoader, $template), 'twig');
+
+                $event = new RenderEvent($fileInfo, $template, [
+                    'path' => $fileInfo->getRelativePathname(),
+                ]);
+                $dispatcher->dispatch(BrancherEvents::RENDER, $event);
+
+                $rendered = $template->render($event->context);
 
                 // Additional rendering for certain file types
                 switch ($fileInfo->getExtension()) {
@@ -224,5 +272,9 @@ class BuildCommand extends Command
                 $filesystem->copy($fileInfo->getPathname(), $outputFilename);
             }
         }
+
+        $writer->writeManagerAssets($manager);
+
+        $dispatcher->dispatch(BrancherEvents::TEARDOWN, new TeardownEvent());
     }
 }

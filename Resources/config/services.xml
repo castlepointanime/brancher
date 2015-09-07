@@ -28,16 +28,20 @@
         <parameter key="castlepointanime.brancher.build.excludes" type="collection"/>
         <parameter key="castlepointanime.brancher.build.data" type="collection"/>
         <parameter key="castlepointanime.brancher.build.templates" type="collection"/>
+        <parameter key="castlepointanime.brancher.build.resources"/>
         <parameter key="castlepointanime.brancher.site" type="collection"/>
     </parameters>
     <services>
+        <service id="assetic.twig_extension" class="Assetic\Extension\Twig\AsseticExtension">
+            <argument type="service" id="brancher.manager.factory" />
+        </service>
         <service id="brancher.twig_extension" class="CastlePointAnime\Brancher\Twig\BrancherExtension" public="false">
             <argument type="service" id="filesystem" />
             <argument type="service" id="frontyaml" />
             <argument>%castlepointanime.brancher.site%</argument>
             <argument>%castlepointanime.brancher.build.data%</argument>
         </service>
-        <service id="brancher.twig_loader" class="CastlePointAnime\Brancher\Twig\FrontYamlLoader" public="false">
+        <service id="brancher.twig_loader" class="CastlePointAnime\Brancher\Twig\FrontYamlLoader">
             <argument type="service" id="frontyaml" />
             <argument>%castlepointanime.brancher.build.templates%</argument>
             <call method="addPath">
@@ -61,6 +65,30 @@
             <call method="addExtension">
                 <argument type="service" id="brancher.twig_extension"/>
             </call>
+            <call method="addExtension">
+                <argument type="service" id="assetic.twig_extension"/>
+            </call>
+        </service>
+
+        <service id="brancher.manager.factory" class="Assetic\Factory\AssetFactory" public="false">
+            <argument>%castlepointanime.brancher.build.resources%</argument>
+        </service>
+        <service id="brancher.manager.twigloader" class="Assetic\Extension\Twig\TwigFormulaLoader" public="false">
+            <argument type="service" id="twig" />
+        </service>
+        <service id="brancher.manager" class="Assetic\Factory\LazyAssetManager">
+            <argument type="service" id="brancher.manager.factory" />
+            <call method="setLoader">
+                <argument>twig</argument>
+                <argument type="service" id="brancher.manager.twigloader" />
+            </call>
+        </service>
+        <service id="brancher.writer" class="Assetic\AssetWriter">
+            <argument>%castlepointanime.brancher.build.output%</argument>
+        </service>
+
+        <service id="event_dispatcher" class="Symfony\Component\EventDispatcher\ContainerAwareEventDispatcher">
+            <argument type="service" id="service_container" />
         </service>
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 

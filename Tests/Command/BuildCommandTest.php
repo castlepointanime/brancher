@@ -64,7 +64,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
             // Try and find config file if it exists
             $finder = new Finder();
-            $finder->in($pathname)->files()->name('/_config\.(xml|yml|php)/');
+            $finder->in($pathname)->files()->name('/config\.(xml|yml|php)/');
 
             $config = null;
             /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
@@ -108,7 +108,11 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
 
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($finder as $fileInfo) {
-            $this->assertFileEquals($fileInfo->getPathname(), "$outputDir/{$fileInfo->getRelativePathname()}");
+            $this->assertFileEquals(
+                $fileInfo->getPathname(),
+                "$outputDir/{$fileInfo->getRelativePathname()}",
+                $fileInfo->getPathname()
+            );
         }
 
         // Test to make sure excluded files do not exist

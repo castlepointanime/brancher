@@ -1,0 +1,10 @@
+brancher:
+  site:
+    name: "Title Text"
+  build:
+    resources: "_resources"
+services:
+  custom_listener:
+    class: CastlePointAnime\Brancher\Tests\CustomListener
+    tags:
+      - { name: brancher.event_subscriber }
