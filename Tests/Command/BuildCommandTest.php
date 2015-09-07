@@ -32,6 +32,19 @@ use Symfony\Component\Finder\Finder;
 class BuildCommandTest extends \PHPUnit_Framework_TestCase
 {
     /**
+     * @var string Output directory for putting builds
+     */
+    private static $outputDir;
+
+    /**
+     * Make a static output directory for building
+     */
+    public static function setUpBeforeClass()
+    {
+        self::$outputDir = sys_get_temp_dir() . '/' . uniqid('brancher');
+    }
+
+    /**
      * Get a list of test websites from the Resources directory
      *
      * @return array
@@ -79,7 +92,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
         $command = $application->find('build');
         $commandTester = new CommandTester($command);
 
-        $outputDir = sys_get_temp_dir() . '/' . uniqid('brancher');
+        $outputDir = self::$outputDir;
         $commandTester->execute(
             array_filter([
                 '--config' => $config,
