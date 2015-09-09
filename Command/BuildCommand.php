@@ -84,8 +84,7 @@ class BuildCommand extends Command
             ->addArgument(
                 'root',
                 InputArgument::OPTIONAL,
-                'Root directory at which to start rendering',
-                '.'
+                'Root directory at which to start rendering'
             )
             ->addArgument(
                 'output',
@@ -120,7 +119,7 @@ class BuildCommand extends Command
         $containerBuilder->registerExtension($extension);
 
         // Try and load config file
-        $locator = new FileLocator([$input->getArgument('root'), __DIR__ . '/../',]);
+        $locator = new FileLocator([getcwd(), $input->getArgument('root'), __DIR__ . '/../',]);
         /** @var \Symfony\Component\DependencyInjection\Loader\FileLoader $loader */
         $loader = new DelegatingLoader(new LoaderResolver([
             new YamlFileLoader($containerBuilder, $locator),
@@ -173,7 +172,7 @@ class BuildCommand extends Command
         $finfo = $this->container->get('finfo');
 
         $root = $this->container->getParameter('castlepointanime.brancher.build.root');
-        $outputDir = $input->getArgument('output');
+        $outputDir = $this->container->getParameter('castlepointanime.brancher.build.output');
 
         // First, clean up non-existent files
         if (file_exists($outputDir)) {
