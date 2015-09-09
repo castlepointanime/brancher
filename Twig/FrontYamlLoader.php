@@ -57,4 +57,19 @@ class FrontYamlLoader extends \Twig_Loader_Filesystem
     {
         return $this->parser->parse(parent::getSource($name), false)->getContent();
     }
+
+    /**
+     * Append multiple paths to the loader
+     *
+     * @param array|string $paths Paths to add
+     * @param string $namespace Namespace
+     *
+     * @throws \Twig_Error_Loader
+     */
+    public function addPaths($paths, $namespace = self::MAIN_NAMESPACE)
+    {
+        foreach ((array)$paths as $path) {
+            $this->addPath($path, $namespace);
+        }
+    }
 }

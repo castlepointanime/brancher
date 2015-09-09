@@ -148,7 +148,9 @@ class BuildCommand extends Command
             new IniFileLoader($containerBuilder, $locator)
         ]));
 
+        $config = null;
         try {
+            $config = $locator->locate($input->getOption('config'));
             $loader->load($input->getOption('config'));
         } catch (\Exception $ex) {
             // Only rethrow if the issue was with the user-provided value
@@ -158,8 +160,10 @@ class BuildCommand extends Command
         }
 
         // Add in final config from command line options
+        $containerBuilder->setParameter('castlepointanime.brancher.build.config', $config);
         $containerBuilder->loadFromExtension($extension->getAlias(), [
             'build' => array_filter([
+                'config' => dirname($config) ?: $root,
                 'root' => $root,
                 'output' => $input->getArgument('output'),
                 'templates' => array_filter(array_map('realpath', $input->getOption('template-dir')), 'is_dir'),
@@ -247,7 +251,7 @@ class BuildCommand extends Command
             if (substr($finfo->file($fileInfo->getPathname()), 0, 4) === 'text') {
                 // Render text files
                 $template = $twig->loadTemplate($fileInfo->getRelativePathname());
-                $manager->addResource(new TwigResource($twigLoader, $template), 'twig');
+                $manager->addResource(new TwigResource($twigLoader, $fileInfo->getRelativePathname()), 'twig');
 
                 $event = new RenderEvent($fileInfo, $template, [
                     'path' => $fileInfo->getRelativePathname(),

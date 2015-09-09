@@ -82,7 +82,7 @@ class BrancherExtension extends Extension
         $makeAbsolute = function ($path) use ($config) {
             return !$path || $path[0] === '/'
                 ? $path
-                : "{$config['build']['root']}/$path";
+                : "{$config['build']['config']}/$path";
         };
 
         $container->getParameterBag()->add([

@@ -39,6 +39,7 @@
             <xs:element name="templates" type="xs:string" maxOccurs="unbounded" />
         </xs:sequence>
         <xs:attribute name="root" type="xs:string" default="." />
+        <xs:attribute name="config" type="xs:string" default="." />
         <xs:attribute name="output" type="xs:string" default="_site" />
         <xs:attribute name="resources" type="xs:string" default="_resources" />
     </xs:complexType>

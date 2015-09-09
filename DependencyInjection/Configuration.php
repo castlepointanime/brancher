@@ -50,6 +50,7 @@ class Configuration implements ConfigurationInterface
                     ->fixXmlConfig('exclude')
                     ->children()
                         ->scalarNode('root')->end()
+                        ->scalarNode('config')->end()
                         ->scalarNode('output')->end()
                         ->scalarNode('resources')->end()
                         ->arrayNode('templates')
