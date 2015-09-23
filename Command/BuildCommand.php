@@ -276,6 +276,27 @@ class BuildCommand extends Command
             }
         }
 
+        // Finally, we need to add all remaining templates as resources to Assetic
+        // so it will dump the proper files
+
+        if ($this->container->getParameter('castlepointanime.brancher.build.templates')) {
+            $templateFinder = new Finder();
+            $templateFinder->files()->in($this->container->getParameter('castlepointanime.brancher.build.templates'));
+            /** @var \Symfony\Component\Finder\SplFileInfo $template */
+            foreach ($templateFinder as $template) {
+                $manager->addResource(new TwigResource($twigLoader, $template->getRelativePathname()), 'twig');
+            }
+        }
+
+        if ($this->container->getParameter('castlepointanime.brancher.build.data')) {
+            $dataFinder = new Finder();
+            $dataFinder->files()->in($this->container->getParameter('castlepointanime.brancher.build.data'));
+            /** @var \Symfony\Component\Finder\SplFileInfo $data */
+            foreach ($dataFinder as $data) {
+                $manager->addResource(new TwigResource($twigLoader, '@data' . $data->getRelativePathname()), 'twig');
+            }
+        }
+
         $writer->writeManagerAssets($manager);
 
         $dispatcher->dispatch(BrancherEvents::TEARDOWN, new TeardownEvent());
