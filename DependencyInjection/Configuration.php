@@ -53,6 +53,7 @@ class Configuration implements ConfigurationInterface
                         ->scalarNode('config')->end()
                         ->scalarNode('output')->end()
                         ->scalarNode('resources')->end()
+                        ->scalarNode('special')->end()
                         ->arrayNode('templates')
                             ->prototype('scalar')
                             ->end()

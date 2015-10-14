@@ -19,19 +19,13 @@
 
 namespace CastlePointAnime\Brancher\Event;
 
-use Symfony\Component\EventDispatcher\Event;
-use Symfony\Component\Finder\SplFileInfo;
+use CastlePointAnime\Brancher\Brancher;
 
 /**
  * The brancher.render event is thrown when a template is about to be rendered.
  */
-class RenderEvent extends Event
+class RenderEvent extends BrancherEvent
 {
-    /**
-     * @var \Symfony\Component\Finder\SplFileInfo File being rendered
-     */
-    private $file;
-
     /**
      * @var \Twig_Template Template for the file being rendered
      */
@@ -45,29 +39,19 @@ class RenderEvent extends Event
     /**
      * Constructor
      *
-     * @param \Symfony\Component\Finder\SplFileInfo $file
+     * @param Brancher $brancher
      * @param \Twig_TemplateInterface $template
      * @param array $context
      */
     public function __construct(
-        SplFileInfo $file,
+        Brancher $brancher,
         /** @noinspection PhpDeprecationInspection */
         \Twig_TemplateInterface $template,
         array $context
     ) {
-        $this->file = $file;
+        parent::__construct($brancher);
         $this->template = $template;
         $this->context = $context;
-    }
-
-    /**
-     * Get the File object being rendered
-     *
-     * @return \Symfony\Component\Finder\SplFileInfo
-     */
-    public function getFile()
-    {
-        return $this->file;
     }
 
     /**

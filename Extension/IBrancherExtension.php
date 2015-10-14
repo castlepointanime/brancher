@@ -17,11 +17,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace CastlePointAnime\Brancher\Event;
+namespace CastlePointAnime\Brancher\Extension;
+
+use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 /**
- * The brancher.teardown event is thrown at the end of the build.
+ * An extension for the brancher build tool that can hook into build events
+ * and receive configuration from per-directory special files
+ *
+ * @package CastlePointAnime\Brancher\Extension
  */
-class TeardownEvent extends BrancherEvent
+interface IBrancherExtension extends ConfigurationInterface, EventSubscriberInterface
 {
+    /**
+     * Get the name of the extension for configuration files
+     *
+     * @return string
+     */
+    public function getName();
 }

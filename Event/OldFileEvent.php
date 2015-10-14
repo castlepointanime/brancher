@@ -19,14 +19,14 @@
 
 namespace CastlePointAnime\Brancher\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use CastlePointAnime\Brancher\Brancher;
 use Symfony\Component\Finder\SplFileInfo;
 
 /**
  * The brancher.oldfile event is thrown when an old file in the output directory that no longer
  * exists in the source directory is found.
  */
-class OldFileEvent extends Event
+class OldFileEvent extends BrancherEvent
 {
     /**
      * @var \Symfony\Component\Finder\SplFileInfo File in the root directory
@@ -46,12 +46,14 @@ class OldFileEvent extends Event
     /**
      * Constructor
      *
+     * @param Brancher $brancher
      * @param \Symfony\Component\Finder\SplFileInfo $srcFile File in the root directory
      * @param \Symfony\Component\Finder\SplFileInfo $dstFile File in the output directory
      * @param $isOld bool Whether the destination file is old and should be deleted
      */
-    public function __construct(SplFileInfo $srcFile, SplFileInfo $dstFile, $isOld)
+    public function __construct(Brancher $brancher, SplFileInfo $srcFile, SplFileInfo $dstFile, $isOld)
     {
+        parent::__construct($brancher);
         $this->srcFile = $srcFile;
         $this->dstFile = $dstFile;
         $this->isOld = $isOld;

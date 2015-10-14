@@ -19,9 +19,37 @@
 
 namespace CastlePointAnime\Brancher\Event;
 
+use CastlePointAnime\Brancher\Brancher;
+use Symfony\Component\EventDispatcher\Event;
+
 /**
- * The brancher.teardown event is thrown at the end of the build.
+ * Event used by the brancher build tool. Provides access to
+ * the Brancher object
+ *
+ * @package CastlePointAnime\Brancher\Event
  */
-class TeardownEvent extends BrancherEvent
+class BrancherEvent extends Event
 {
+    /** @var \CastlePointAnime\Brancher\Brancher Build object */
+    private $brancher;
+
+    /**
+     * Constructor
+     *
+     * @param \CastlePointAnime\Brancher\Brancher $brancher
+     */
+    public function __construct(Brancher $brancher)
+    {
+        $this->brancher = $brancher;
+    }
+
+    /**
+     * Get the builder object that triggered the event
+     *
+     * @return \CastlePointAnime\Brancher\Brancher
+     */
+    public function getBrancher()
+    {
+        return $this->brancher;
+    }
 }

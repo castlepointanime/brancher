@@ -19,14 +19,14 @@
 
 namespace CastlePointAnime\Brancher\Event;
 
-use Symfony\Component\EventDispatcher\Event;
+use CastlePointAnime\Brancher\Brancher;
 use Symfony\Component\Finder\Finder;
 
 /**
  * The brancher.setup event is thrown once when the file finder has been set
  * up and is about to start rendering.
  */
-class SetupEvent extends Event
+class SetupEvent extends BrancherEvent
 {
     /**
      * @var \Symfony\Component\Finder\Finder Finder to be used to find files
@@ -36,10 +36,12 @@ class SetupEvent extends Event
     /**
      * Constructor
      *
+     * @param Brancher $brancher
      * @param \Symfony\Component\Finder\Finder $renderFinder
      */
-    public function __construct(Finder $renderFinder)
+    public function __construct(Brancher $brancher, Finder $renderFinder)
     {
+        parent::__construct($brancher);
         $this->renderFinder = $renderFinder;
     }
 

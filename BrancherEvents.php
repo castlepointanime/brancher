@@ -47,6 +47,16 @@ final class BrancherEvents
     const SETUP = 'brancher.setup';
 
     /**
+     * The brancher.directory_enter event is triggered every time a new directory
+     * is entered
+     *
+     * The event listener receives a CastlePointAnime\Brancher\Event\DirectoryEnterEvent
+     *
+     * @var string
+     */
+    const DIRECTORY_ENTER = 'brancher.directory_enter';
+
+    /**
      * The brancher.render event is thrown when a template is about to be rendered.
      *
      * The event listener receives a CastlePointAnime\Brancher\Event\RenderEvent.

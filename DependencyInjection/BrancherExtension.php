@@ -44,6 +44,7 @@ class BrancherExtension extends Extension
             'site' => [],
             'build' => [
                 'output' => '',
+                'special' => '',
                 'resources' => '',
                 'templates' => [],
                 'excludes' => [],
@@ -78,6 +79,9 @@ class BrancherExtension extends Extension
         if (!$config['build']['output']) {
             $config['build']['output'] = "{$config['build']['root']}/_site";
         }
+        if (!$config['build']['special']) {
+            $config['build']['special'] = '.brancher.yml';
+        }
 
         $makeAbsolute = function ($path) use ($config) {
             return !$path || $path[0] === '/'
@@ -93,6 +97,7 @@ class BrancherExtension extends Extension
             'castlepointanime.brancher.build.excludes' => array_map($makeAbsolute, $config['build']['excludes']),
             'castlepointanime.brancher.build.resources' => $makeAbsolute($config['build']['resources']),
             'castlepointanime.brancher.build.data' => array_map($makeAbsolute, $config['build']['data']),
+            'castlepointanime.brancher.build.special' => $config['build']['special'],
             'castlepointanime.brancher.twig.extensions' => $config['twig']['extensions'],
         ]);
     }
