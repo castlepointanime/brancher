@@ -112,7 +112,7 @@
         <service id="brancher.ext.post_generator.jsonpointer" class="Webnium\JsonPointer\ArrayAccessor" public="false">
             <argument type="service" id="brancher.ext.post_generator.jsonpointer.parser" />
         </service>
-        <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtension">
+        <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtensionInterface">
             <argument type="service" id="brancher.ext.post_generator.jsonpointer" />
             <tag name="brancher.extension" />
         </service>

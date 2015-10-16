@@ -28,7 +28,7 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
  *
  * @package CastlePointAnime\Brancher\Extension
  */
-interface IBrancherExtension extends ConfigurationInterface, EventSubscriberInterface
+interface BrancherExtensionInterface extends ConfigurationInterface, EventSubscriberInterface
 {
     /**
      * Get the name of the extension for configuration files

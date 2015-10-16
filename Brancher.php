@@ -27,7 +27,7 @@ use CastlePointAnime\Brancher\Event\OldFileEvent;
 use CastlePointAnime\Brancher\Event\RenderEvent;
 use CastlePointAnime\Brancher\Event\SetupEvent;
 use CastlePointAnime\Brancher\Event\TeardownEvent;
-use CastlePointAnime\Brancher\Extension\IBrancherExtension;
+use CastlePointAnime\Brancher\Extension\BrancherExtensionInterface;
 use Mni\FrontYAML\YAML\YAMLParser;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -67,7 +67,7 @@ class Brancher
     /** @var string[] Directories to exclude from rendering */
     private $excludes = [];
 
-    /** @var Extension\IBrancherExtension[] */
+    /** @var Extension\BrancherExtensionInterface[] */
     private $extensions;
 
     /**
@@ -174,9 +174,9 @@ class Brancher
      * Register an extension with Brancher for receiving events and configuration
      * from directories
      *
-     * @param \CastlePointAnime\Brancher\Extension\IBrancherExtension $ext
+     * @param \CastlePointAnime\Brancher\Extension\BrancherExtensionInterface $ext
      */
-    public function registerExtension(IBrancherExtension $ext)
+    public function registerExtension(BrancherExtensionInterface $ext)
     {
         $this->extensions[$ext->getName()] = $ext;
         $this->dispatcher->addSubscriber($ext);
@@ -193,7 +193,7 @@ class Brancher
         // First, clean up non-existent files
         if (file_exists($this->outputDir)) {
             $deleteFinder = new Finder();
-            $deleteFinder->in($this->outputDir)->filter(function (SplFileInfo $dstFile) use ($that) {
+            $deleteFinder->in($this->outputDir)->filter(function (SplFileInfo $dstFile) {
                 // Filter out entries where the source does not exist, or is not the same type
                 $srcFile = new SplFileInfo(
                     "{$this->root}/{$dstFile->getRelativePathname()}",

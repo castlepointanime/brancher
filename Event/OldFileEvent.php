@@ -94,7 +94,7 @@ class OldFileEvent extends BrancherEvent
      *
      * @param bool $isOld True to delete, false otherwise
      */
-    public function setIsOld($isOld)
+    public function setOld($isOld)
     {
         $this->isOld = (bool)$isOld;
     }
