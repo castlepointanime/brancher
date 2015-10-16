@@ -33,7 +33,7 @@ use Webnium\JsonPointer\ArrayAccessor;
  *
  * @package CastlePointAnime\Brancher\Extension
  */
-class PostGeneratorExtensionInterface implements BrancherExtensionInterface
+class PostGeneratorExtension implements BrancherExtensionInterface
 {
     /** @var \Webnium\JsonPointer\ArrayAccessor JSON pointer resolution service */
     private $jsonPointerResolver;

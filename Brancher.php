@@ -271,6 +271,22 @@ class Brancher
             }
         }
 
+        // Finally, we need to add all remaining templates as resources to Assetic
+        // so it will dump the proper files
+
+        /** @var \Twig_Loader_Filesystem $loader */
+        $loader = $this->twig->getLoader();
+        if ($loader instanceof \Twig_Loader_Filesystem) {
+            $resourceFinder = new Finder();
+            foreach ($loader->getNamespaces() as $ns) {
+                $resourceFinder->in($loader->getPaths($ns));
+            }
+            /** @var \Symfony\Component\Finder\SplFileInfo $template */
+            foreach ($resourceFinder as $template) {
+                $this->manager->addResource(new TwigResource($loader, $template->getRelativePathname()), 'twig');
+            }
+        }
+
         $this->writer->writeManagerAssets($this->manager);
 
         $this->dispatcher->dispatch(BrancherEvents::TEARDOWN, new TeardownEvent($this));

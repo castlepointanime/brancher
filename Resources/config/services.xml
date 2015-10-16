@@ -72,8 +72,12 @@
             </call>
         </service>
 
+        <service id="brancher.manager.filters" class="Assetic\FilterManager" />
         <service id="brancher.manager.factory" class="Assetic\Factory\AssetFactory" public="false">
             <argument>%castlepointanime.brancher.build.resources%</argument>
+            <call method="setFilterManager">
+                <argument type="service" id="brancher.manager.filters" />
+            </call>
         </service>
         <service id="brancher.manager.twigloader" class="Assetic\Extension\Twig\TwigFormulaLoader" public="false">
             <argument type="service" id="twig" />
@@ -112,7 +116,7 @@
         <service id="brancher.ext.post_generator.jsonpointer" class="Webnium\JsonPointer\ArrayAccessor" public="false">
             <argument type="service" id="brancher.ext.post_generator.jsonpointer.parser" />
         </service>
-        <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtensionInterface">
+        <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtension">
             <argument type="service" id="brancher.ext.post_generator.jsonpointer" />
             <tag name="brancher.extension" />
         </service>
