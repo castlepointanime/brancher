@@ -20,6 +20,7 @@
 namespace CastlePointAnime\Brancher\Command;
 
 use CastlePointAnime\Brancher\DependencyInjection\BrancherExtension;
+use CastlePointAnime\Brancher\DependencyInjection\ExtensionCompilerPass;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\DelegatingLoader;
 use Symfony\Component\Config\Loader\LoaderResolver;
@@ -129,6 +130,7 @@ class BuildCommand extends Command
         $containerBuilder = new ContainerBuilder();
         $extension = new BrancherExtension();
         $containerBuilder->registerExtension($extension);
+        $containerBuilder->addCompilerPass(new ExtensionCompilerPass());
         $containerBuilder->addCompilerPass(
             new RegisterListenersPass(
                 'event_dispatcher',

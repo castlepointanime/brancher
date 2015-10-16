@@ -114,6 +114,7 @@
         </service>
         <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtension">
             <argument type="service" id="brancher.ext.post_generator.jsonpointer" />
+            <tag name="brancher.extension" />
         </service>
 
         <service id="brancher" class="CastlePointAnime\Brancher\Brancher">
@@ -124,9 +125,6 @@
             <argument type="service" id="brancher.writer" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="yaml" />
-            <call method="registerExtension">
-                <argument type="service" id="brancher.ext.post_generator" />
-            </call>
             <call method="setRoot">
                 <argument>%castlepointanime.brancher.build.root%</argument>
             </call>
