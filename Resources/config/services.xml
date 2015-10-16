@@ -30,6 +30,7 @@
         <parameter key="castlepointanime.brancher.build.data" type="collection"/>
         <parameter key="castlepointanime.brancher.build.templates" type="collection"/>
         <parameter key="castlepointanime.brancher.build.resources"/>
+        <parameter key="castlepointanime.brancher.build.special"/>
         <parameter key="castlepointanime.brancher.site" type="collection"/>
     </parameters>
     <services>
@@ -98,16 +99,57 @@
         <service id="filesystem" class="Symfony\Component\Filesystem\Filesystem"/>
 
         <service id="parsedown" class="ParsedownExtra"/>
+        <service id="yaml" class="Mni\FrontYAML\Bridge\Symfony\SymfonyYAMLParser" />
         <service id="frontyaml.bridge" class="Mni\FrontYAML\Bridge\Parsedown\ParsedownParser" public="false">
             <argument type="service" id="parsedown"/>
         </service>
         <service id="frontyaml" class="Mni\FrontYAML\Parser">
-            <argument>null</argument>
+            <argument type="service" id="yaml" />
             <argument type="service" id="frontyaml.bridge"/>
         </service>
 
         <service id="finfo" class="finfo">
             <argument type="constant">FILEINFO_MIME</argument>
+        </service>
+
+        <service id="brancher.ext.post_generator.jsonpointer.parser" class="Webnium\JsonPointer\Parser" public="false" />
+        <service id="brancher.ext.post_generator.jsonpointer" class="Webnium\JsonPointer\ArrayAccessor" public="false">
+            <argument type="service" id="brancher.ext.post_generator.jsonpointer.parser" />
+        </service>
+        <service id="brancher.ext.post_generator" class="CastlePointAnime\Brancher\Extension\PostGeneratorExtension">
+            <argument type="service" id="brancher.ext.post_generator.jsonpointer" />
+            <tag name="brancher.extension" />
+        </service>
+
+        <service id="brancher" class="CastlePointAnime\Brancher\Brancher">
+            <argument type="service" id="filesystem" />
+            <argument type="service" id="twig" />
+            <argument type="service" id="finfo" />
+            <argument type="service" id="brancher.manager" />
+            <argument type="service" id="brancher.writer" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="yaml" />
+            <call method="setRoot">
+                <argument>%castlepointanime.brancher.build.root%</argument>
+            </call>
+            <call method="setOutputDirectory">
+                <argument>%castlepointanime.brancher.build.output%</argument>
+            </call>
+            <call method="setSpecialFilename">
+                <argument>%castlepointanime.brancher.build.special%</argument>
+            </call>
+            <call method="addExcludes">
+                <argument>%castlepointanime.brancher.build.excludes%</argument>
+            </call>
+            <call method="addExcludes">
+                <argument>%castlepointanime.brancher.build.templates%</argument>
+            </call>
+            <call method="addExcludes">
+                <argument>%castlepointanime.brancher.build.data%</argument>
+            </call>
+            <call method="addExclude">
+                <argument>%castlepointanime.brancher.build.resources%</argument>
+            </call>
         </service>
     </services>
 </container>
