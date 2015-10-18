@@ -44,6 +44,7 @@
           <root url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown-extra" />
+          <root url="file://$MODULE_DIR$/vendor/gregwar/rst" />
           <root url="file://$MODULE_DIR$/vendor/kriswallsmith/assetic" />
           <root url="file://$MODULE_DIR$/vendor/mnapoli/front-yaml" />
           <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
@@ -82,6 +83,7 @@
           <root url="file://$MODULE_DIR$/vendor/doctrine/instantiator" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown" />
           <root url="file://$MODULE_DIR$/vendor/erusev/parsedown-extra" />
+          <root url="file://$MODULE_DIR$/vendor/gregwar/rst" />
           <root url="file://$MODULE_DIR$/vendor/kriswallsmith/assetic" />
           <root url="file://$MODULE_DIR$/vendor/mnapoli/front-yaml" />
           <root url="file://$MODULE_DIR$/vendor/pdepend/pdepend" />
