@@ -25,7 +25,6 @@
         Rules to check for castlepointanime/brancher
     </description>
 
-    <rule ref="rulesets/cleancode.xml/BooleanArgumentFlag" />
     <rule ref="rulesets/codesize.xml/ExcessiveParameterList" />
     <rule ref="rulesets/controversial.xml" />
     <rule ref="rulesets/design.xml/ExitExpression" />

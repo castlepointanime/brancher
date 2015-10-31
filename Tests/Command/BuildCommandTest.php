@@ -22,6 +22,7 @@ namespace CastlePointAnime\Brancher\Tests\Command;
 use CastlePointAnime\Brancher\Command\BuildCommand;
 use CastlePointAnime\Brancher\Console\Application;
 use Symfony\Component\Console\Tester\CommandTester;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -31,10 +32,11 @@ use Symfony\Component\Finder\Finder;
  */
 class BuildCommandTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @var string Output directory for putting builds
-     */
+    /** @var string Output directory for putting builds */
     private static $outputDir;
+
+    /** @var Filesystem */
+    private static $filesystem;
 
     /**
      * Make a static output directory for building
@@ -42,6 +44,29 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
     public static function setUpBeforeClass()
     {
         self::$outputDir = sys_get_temp_dir() . '/' . uniqid('brancher');
+        self::$filesystem = new Filesystem();
+    }
+
+    /**
+     * Create the output directory before building (not really necessary,
+     * but is a bit cleaner since it matches the tearDown function)
+     */
+    public function setUp()
+    {
+        self::$filesystem->mkdir(self::$outputDir);
+    }
+
+    /**
+     * Delete the directory after rendering
+     *
+     * This is necessary due to a bug where rendering from different roots
+     * to the same output directory can cause issues because Brancher has no
+     * idea which root the current files in the directory were built from,
+     * and thus it sometimes will mistakenly think they are up to date.
+     */
+    public function tearDown()
+    {
+        self::$filesystem->remove(self::$outputDir);
     }
 
     /**
@@ -83,7 +108,7 @@ class BuildCommandTest extends \PHPUnit_Framework_TestCase
      * @param string $root Root directory of site
      * @param string|null $config Path to configuration file
      */
-    public function testSites($root, $config = null)
+    public function testBuild($root, $config = null)
     {
         $application = new Application();
         $application->add(new BuildCommand());

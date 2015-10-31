@@ -1,4 +1,3 @@
-#!/usr/bin/env php
 <?php
 /**
  * This file is part of brancher, a static site generation tool
@@ -18,20 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace CastlePointAnime\Brancher;
+namespace CastlePointAnime\Brancher\Twig;
 
-use CastlePointAnime\Brancher\Console\Application;
-
-// Try finding autoloader in different places
-foreach (['vendor/autoload.php', '../../autoload.php'] as $file) {
-    if (file_exists(__DIR__ . '/' . $file)) {
-        /** @noinspection PhpIncludeInspection */
-        require __DIR__ . '/' . $file;
+/**
+ * A Twig node that is inserted into the template compilation process
+ * in order to capture the list of assets that were used during compilation,
+ * and storing them in the template
+ *
+ * @package CastlePointAnime\Brancher\Twig
+ */
+class TimeTrackingNode extends \Twig_Node
+{
+    /**
+     * Get the list of assets from the compiler and store them in a property
+     *
+     * @param \Twig_Compiler $compiler
+     */
+    public function compile(\Twig_Compiler $compiler)
+    {
+        if ($compiler instanceof TimeTrackingCompiler) {
+            $compiler->write('protected $assets = ');
+            $compiler->repr($compiler->getAssets());
+            $compiler->raw(";\n");
+        }
     }
 }
-
-$application = new Application();
-$application->add(new Command\LicenseCommand());
-$application->add(new Command\BuildCommand());
-$application->add(new Command\ServerCommand());
-$application->run();

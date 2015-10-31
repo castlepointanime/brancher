@@ -54,13 +54,20 @@
                 <argument>data</argument>
             </call>
         </service>
+        <service id="twig.compiler" class="CastlePointAnime\Brancher\Twig\TimeTrackingCompiler">
+            <argument type="service" id="twig" />
+        </service>
         <service id="twig" class="Twig_Environment">
             <argument type="service" id="brancher.twig_loader" />
             <argument type="collection">
                 <argument key="debug">%debug%</argument>
                 <argument key="cache">false</argument>
                 <argument key="strict_variables">true</argument>
+                <argument key="base_template_class">CastlePointAnime\Brancher\Twig\TimeTrackingTemplate</argument>
             </argument>
+            <call method="setCompiler">
+                <argument type="service" id="twig.compiler" />
+            </call>
             <call method="setExtensions">
                 <argument>%castlepointanime.brancher.twig.extensions%</argument>
             </call>

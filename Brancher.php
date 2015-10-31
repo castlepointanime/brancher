@@ -29,8 +29,10 @@ use CastlePointAnime\Brancher\Event\SetupEvent;
 use CastlePointAnime\Brancher\Event\TeardownEvent;
 use CastlePointAnime\Brancher\Extension\BrancherExtensionInterface;
 use Mni\FrontYAML\YAML\YAMLParser;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -57,6 +59,8 @@ class Brancher
     private $dispatcher;
     /** @var \Mni\FrontYAML\YAML\YAMLParser YAML parser */
     private $yaml;
+    /** @var \Psr\Log\LoggerInterface */
+    private $logger;
 
     /** @var string Root directory to start rendering from */
     private $root = '';
@@ -100,6 +104,27 @@ class Brancher
     }
 
     /**
+     * Set the logger to use during the build
+     *
+     * @param \Psr\Log\LoggerInterface $logger
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
+     * Get the root directory from which to render
+     *
+     * @see setRoot
+     * @return string
+     */
+    public function getRoot()
+    {
+        return $this->root;
+    }
+
+    /**
      * Set the root directory from which to render
      *
      * The root directory is what is iterated over when creating files in
@@ -110,6 +135,17 @@ class Brancher
     public function setRoot($root)
     {
         $this->root = $root;
+    }
+
+    /**
+     * Get the output directory into which files are rendered
+     *
+     * @see setOutputDirectory
+     * @return string
+     */
+    public function getOutputDirectory()
+    {
+        return $this->outputDir;
     }
 
     /**
@@ -183,31 +219,43 @@ class Brancher
     }
 
     /**
-     * Build the site
+     * Build the site, and return a list of directories that were used to build it
+     *
+     * @return string[]
      */
     public function build()
     {
         $that = $this;
         $this->root = realpath($this->root);
 
+        $this->logger->info("Rendering from {$this->root} to {$this->outputDir}");
+
         // First, clean up non-existent files
         if (file_exists($this->outputDir)) {
+            $this->logger->info("Cleaning output directory");
             $deleteFinder = new Finder();
-            $deleteFinder->in($this->outputDir)->filter(function (SplFileInfo $dstFile) {
-                // Filter out entries where the source does not exist, or is not the same type
-                $srcFile = new SplFileInfo(
-                    "{$this->root}/{$dstFile->getRelativePathname()}",
-                    $dstFile->getRelativePath(),
-                    $dstFile->getRelativePathname()
-                );
-                $old = $dstFile->isDir() && !$srcFile->isDir()
-                    || $dstFile->isFile() && !$srcFile->isFile();
+            $deleteFinder
+                ->in($this->outputDir)
+                ->exclude(['css', 'js'])
+                ->filter(function (SplFileInfo $dstFile) use ($that) {
+                    // Filter out entries where the source does not exist, or is not the same type
+                    $srcFile = new SplFileInfo(
+                        "{$this->root}/{$dstFile->getRelativePathname()}",
+                        $dstFile->getRelativePath(),
+                        $dstFile->getRelativePathname()
+                    );
+                    $old = $dstFile->isDir() && !$srcFile->isDir()
+                        || $dstFile->isFile() && !$srcFile->isFile();
 
-                $event = new OldFileEvent($this, $srcFile, $dstFile, $old);
-                $this->dispatcher->dispatch(BrancherEvents::OLDFILE, $event);
+                    $event = new OldFileEvent($this, $srcFile, $dstFile, $old);
+                    $this->dispatcher->dispatch(BrancherEvents::OLDFILE, $event);
 
-                return $event->isOld();
-            });
+                    if ($event->isOld()) {
+                        $that->logger->warning("Removing file: {$srcFile->getRelativePathname()}");
+                    }
+
+                    return $event->isOld();
+                });
             $this->filesystem->remove($deleteFinder);
         }
 
@@ -236,10 +284,12 @@ class Brancher
 
         // Render every file and dump to output
         $directoryVisited = [];
+        $paths = [];
         /** @var \Symfony\Component\Finder\SplFileInfo $fileInfo */
         foreach ($renderFinder as $fileInfo) {
             $path = $fileInfo->getRelativePath();
             if (!isset($directoryVisited[$path])) {
+                $this->logger->debug("Entering directory $path");
                 $pathObj = new SplFileInfo(
                     $fileInfo->getPath(),
                     basename($fileInfo->getRelativePath()),
@@ -256,23 +306,34 @@ class Brancher
                 continue;
             }
 
+            $this->logger->debug("Processing file {$fileInfo->getRelativePathname()}");
+
             if (substr($this->finfo->file($fileInfo->getPathname()), 0, 4) === 'text') {
-                $this->renderFile(
+                $this->logger->debug("File is text; attempting to render");
+                /** @var \CastlePointAnime\Brancher\Twig\TimeTrackingTemplate $template */
+                $template = $this->renderFile(
                     $fileInfo->getRelativePathname(),
                     $fileInfo->getRelativePathname(),
                     ['path' => $fileInfo->getRelativePathname()]
                 );
+                $paths = array_merge($paths, $template->getPaths());
             } else {
+                $this->logger->debug("File is binary; dumping without render");
                 // Dump binary files verbatim into output directory
-                $this->filesystem->copy(
-                    $fileInfo->getPathname(),
-                    "{$this->outputDir}/{$fileInfo->getRelativePathname()}"
-                );
+                try {
+                    $this->filesystem->copy(
+                        $fileInfo->getPathname(),
+                        "{$this->outputDir}/{$fileInfo->getRelativePathname()}"
+                    );
+                } catch (FileNotFoundException $e) {
+                    $this->logger->warning("File disappeared before it could be copied: {$fileInfo->getPathname()}");
+                }
             }
         }
 
         // Finally, we need to add all remaining templates as resources to Assetic
         // so it will dump the proper files
+        $this->logger->info("Rendering Assetic assets");
 
         /** @var \Twig_Loader_Filesystem $loader */
         $loader = $this->twig->getLoader();
@@ -280,16 +341,21 @@ class Brancher
             $resourceFinder = new Finder();
             foreach ($loader->getNamespaces() as $ns) {
                 $resourceFinder->in($loader->getPaths($ns));
+                $paths = array_merge($paths, $loader->getPaths($ns));
             }
             /** @var \Symfony\Component\Finder\SplFileInfo $template */
             foreach ($resourceFinder as $template) {
+                $this->logger->debug("Adding template resource {$template->getRelativePathname()}");
                 $this->manager->addResource(new TwigResource($loader, $template->getRelativePathname()), 'twig');
             }
         }
 
+        $this->logger->debug("Dumping assets to output directory");
         $this->writer->writeManagerAssets($this->manager);
 
         $this->dispatcher->dispatch(BrancherEvents::TEARDOWN, new TeardownEvent($this));
+
+        return array_unique($paths);
     }
 
     /**
@@ -298,20 +364,33 @@ class Brancher
      * @param string $templateName Name of the template for Twig
      * @param string $outputPath Relative path to render to
      * @param array $context Twig context
+     *
+     * @return \Twig_Template The template rendered
+     * @throws \Exception
      */
     public function renderFile($templateName, $outputPath, array $context)
     {
+        $this->logger->debug("Loading template $templateName");
+        /** @var \CastlePointAnime\Brancher\Twig\TimeTrackingTemplate $template */
         $template = $this->twig->loadTemplate($templateName);
         $this->manager->addResource(
             new TwigResource($this->twig->getLoader(), $templateName),
             'twig'
         );
 
-        $event = new RenderEvent($this, $template, $context);
-        $this->dispatcher->dispatch(BrancherEvents::RENDER, $event);
+        // Render the template only if it has changed
+        $outputPath = "{$this->outputDir}/$outputPath";
+        if (!file_exists($outputPath) || !$template->isTemplateFresh(filemtime($outputPath))) {
+            $this->logger->info("Rendering template $templateName");
+            // Dispatch render event
+            $event = new RenderEvent($this, $template, $context);
+            $this->dispatcher->dispatch(BrancherEvents::RENDER, $event);
 
-        $rendered = $template->render($event->context);
-        $this->filesystem->dumpFile("{$this->outputDir}/$outputPath", $rendered);
+            $rendered = $template->render($event->context);
+            $this->filesystem->dumpFile($outputPath, $rendered);
+        }
+
+        return $template;
     }
 
     /**
