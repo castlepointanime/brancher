@@ -34,11 +34,11 @@
     "squizlabs/php_codesniffer": "2.*",
     "phpmd/phpmd" : "@stable",
     "sensiolabs/security-checker": "~2.0",
-    "ext-pcntl": ""
+    "ext-pcntl": "*"
   },
   "suggest": {
-    "ext-inotify": "",
-    "ext-pcntl": ""
+    "ext-inotify": ">=0.1.2",
+    "ext-pcntl": "*"
   },
   "bin": ["brancher"]
 }
